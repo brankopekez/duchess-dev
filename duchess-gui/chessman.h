@@ -1,7 +1,6 @@
 #pragma once
 
 #include "entity.h"
-#include "square.h"
 
 class Chessman : public sf::Transformable, public sf::Drawable {
  public:

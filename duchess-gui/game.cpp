@@ -7,10 +7,6 @@ Game::Game()
       board_{720} {
   LoadTextures();
   //board_.SetTexture(textures_.Get("chessboard"));
-
-  Chessman p{"black_rook", textures_};
-  p.SetSize(720.f / 8.f);
-  pieces_.push_back(std::move(p));
 }
 
 void Game::Run() {
@@ -64,8 +60,6 @@ void Game::Update(sf::Time elapsedTime) {}
 void Game::Render() {
   window_.clear(sf::Color::White);
   board_.SetPosition({90, 90});
-  pieces_[0].setPosition(90, 90);
   window_.draw(board_);
-  window_.draw(pieces_[0]);
   window_.display();
 }

@@ -24,5 +24,4 @@ class Game {
   sf::RenderWindow window_;
   TextureWrapper textures_;
   Chessboard board_;
-  std::vector<Chessman> pieces_;
 };
