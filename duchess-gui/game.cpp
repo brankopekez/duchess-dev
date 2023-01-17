@@ -30,18 +30,30 @@ void Game::LoadTextures() {
   //textures_.Load("black_square", "Media/Textures/black_square.png");
   const std::string chess_pieces = "Media/Textures/chess_pieces.png";
   int d = 90;
-  textures_.Load("white_king", chess_pieces, sf::IntRect(0, 0, d, d));
-  textures_.Load("black_king", chess_pieces, sf::IntRect(0, d, d, d));
-  textures_.Load("white_queen", chess_pieces, sf::IntRect(d, 0, d, d));
-  textures_.Load("black_queen", chess_pieces, sf::IntRect(d, d, d, d));
-  textures_.Load("white_bishop", chess_pieces, sf::IntRect(2 * d, 0, d, d));
-  textures_.Load("black_bishop", chess_pieces, sf::IntRect(2 * d, d, d, d));
-  textures_.Load("white_knight", chess_pieces, sf::IntRect(3 * d, 0, d, d));
-  textures_.Load("black_knight", chess_pieces, sf::IntRect(3 * d, d, d, d));
-  textures_.Load("white_rook", chess_pieces, sf::IntRect(4 * d, 0, d, d));
-  textures_.Load("black_rook", chess_pieces, sf::IntRect(4 * d, d, d, d));
-  textures_.Load("white_pawn", chess_pieces, sf::IntRect(5 * d, 0, d, d));
-  textures_.Load("black_pawn", chess_pieces, sf::IntRect(5 * d, d, d, d));
+  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kKing, chess_pieces,
+                 sf::IntRect(0, 0, d, d));
+  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kKing, chess_pieces,
+                 sf::IntRect(0, d, d, d));
+  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kQueen, chess_pieces,
+                 sf::IntRect(d, 0, d, d));
+  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kQueen, chess_pieces,
+                 sf::IntRect(d, d, d, d));
+  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kBishop, chess_pieces,
+                 sf::IntRect(2 * d, 0, d, d));
+  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kBishop, chess_pieces,
+                 sf::IntRect(2 * d, d, d, d));
+  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kKnight, chess_pieces,
+                 sf::IntRect(3 * d, 0, d, d));
+  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kKnight, chess_pieces,
+                 sf::IntRect(3 * d, d, d, d));
+  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kRook, chess_pieces,
+                 sf::IntRect(4 * d, 0, d, d));
+  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kRook, chess_pieces,
+                 sf::IntRect(4 * d, d, d, d));
+  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kPawn, chess_pieces,
+                 sf::IntRect(5 * d, 0, d, d));
+  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kPawn, chess_pieces,
+                 sf::IntRect(5 * d, d, d, d));
 }
 
 void Game::ProcessInput() {
@@ -61,5 +73,10 @@ void Game::Render() {
   window_.clear(sf::Color::White);
   board_.SetPosition({90, 90});
   window_.draw(board_);
+
+  Chessman t{Chessman::Color::kBlack, Chessman::Type::kRook, textures_};
+  t.setPosition({90, 90});
+  window_.draw(t);
+
   window_.display();
 }

@@ -1,7 +1,9 @@
 #include "chessman.h"
 
-Chessman::Chessman(const std::string& id, const TextureWrapper& textures)
-    : sprite_{textures.Get(id)} {}
+Chessman::Chessman(Color color, Type type, const TextureWrapper& textures)
+    : color_{color},
+      type_{type},
+      sprite_{textures.Get(color | type)} {}
 
 void Chessman::SetTexture(const sf::Texture& texture, bool resetRect) {
   sprite_.setTexture(texture, resetRect);
