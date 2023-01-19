@@ -7,6 +7,8 @@ Game::Game()
       board_{720} {
   LoadTextures();
   //board_.SetTexture(textures_.Get("chessboard"));
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kRook, 0, 0,
+                  textures_);
 }
 
 void Game::Run() {
@@ -73,10 +75,5 @@ void Game::Render() {
   window_.clear(sf::Color::White);
   board_.SetPosition({90, 90});
   window_.draw(board_);
-
-  Chessman t{Chessman::Color::kBlack, Chessman::Type::kRook, textures_};
-  t.setPosition({90, 90});
-  window_.draw(t);
-
   window_.display();
 }
