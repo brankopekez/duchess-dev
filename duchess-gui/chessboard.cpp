@@ -11,8 +11,7 @@ Chessboard::Chessboard(const float size) : size_{size} {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
       squares_[i][j].SetSize(square_size);
       squares_[i][j].setPosition(
-          GetPosition() +
-          sf::Vector2f{square_size * j, square_size * i});
+          GetPosition() + sf::Vector2f{square_size * j, square_size * i});
       if ((j + i) % 2 != 0) {
         squares_[i][j].SetColor(sf::Color{209, 139, 71});
       } else {
