@@ -22,8 +22,7 @@ class Chessman : public sf::Transformable, public sf::Drawable {
   void SetSize(float size);
 
  protected:
-  virtual void draw(sf::RenderTarget& target,
-                    sf::RenderStates states) const override;
+  virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  private:
   Color color_;

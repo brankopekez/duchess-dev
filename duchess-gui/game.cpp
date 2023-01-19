@@ -2,13 +2,42 @@
 
 const sf::Time Game::kTimePerFrame = sf::seconds(1.f / 60.f);
 
-Game::Game()
-    : window_{sf::VideoMode(900, 900), "Duchess-GUI", sf::Style::Close},
-      board_{720} {
+Game::Game() : window_{sf::VideoMode(900, 900), "Duchess-GUI", sf::Style::Close}, board_{720} {
   LoadTextures();
   //board_.SetTexture(textures_.Get("chessboard"));
-  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kRook, 0, 0,
-                  textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kRook,   0, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kKnight, 1, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kBishop, 2, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kQueen,  3, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kKing,   4, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kBishop, 5, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kKnight, 6, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kRook,   7, 0, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   0, 1, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   1, 1, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   2, 1, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   3, 1, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   4, 1, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   5, 1, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   6, 1, textures_);
+  board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn,   7, 1, textures_);
+  
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   0, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   1, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   2, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   3, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   4, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   5, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   6, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn,   7, 6, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kRook,   0, 7, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kKnight, 1, 7, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kBishop, 2, 7, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kQueen,  3, 7, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kKing,   4, 7, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kBishop, 5, 7, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kKnight, 6, 7, textures_);
+  board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kRook,   7, 7, textures_);
 }
 
 void Game::Run() {

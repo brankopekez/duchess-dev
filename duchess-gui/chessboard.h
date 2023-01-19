@@ -14,27 +14,29 @@ class Chessboard : public sf::Drawable {
   Chessboard(const float size);
   const sf::Vector2f& GetPosition() const;
   void SetPosition(const sf::Vector2f& position);
-  void NewPiece(Chessman::Color color, Chessman::Type type, size_t file,
-                size_t rank, const TextureWrapper& textures);
+  void NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
+                const TextureWrapper& textures);
 
  protected:
-  class Square : public sf::Transformable, public sf::Drawable {
+  class Square : public sf::Drawable {
    public:
     Square(float side = 0);
     void SetColor(const sf::Color& color);
     void SetTexture(const sf::Texture& texture, bool resetRect = false);
     void SetSize(float side);
-
-    sf::RectangleShape shape_;
-    std::unique_ptr<Chessman> piece_;
+    const sf::Vector2f& GetPosition() const;
+    void SetPosition(const sf::Vector2f& position);
+    void SetPiece(std::unique_ptr<Chessman> piece);
 
    protected:
-    virtual void draw(sf::RenderTarget& target,
-                      sf::RenderStates states) const override;
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+   private:
+    sf::RectangleShape shape_;
+    std::unique_ptr<Chessman> piece_;
   };
 
-  virtual void draw(sf::RenderTarget& target,
-                    sf::RenderStates states) const override;
+  virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  private:
   static const int kSquaresNo = 64;
