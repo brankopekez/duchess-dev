@@ -9,13 +9,13 @@ Chessboard::Chessboard(const float size) : size_{size}, selected_square_{nullptr
   float square_size = size_ / kSideSquaresNo;
   for (size_t i = 0; i < kSideSquaresNo; i++) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
-      size_t rank = kSideSquaresNo - i - 1;
-      squares_[rank][j].SetSize(square_size);
-      squares_[rank][j].SetPosition(GetPosition() + sf::Vector2f{square_size * j, square_size * i});
-      if ((j + rank) % 2 != 0) {
-        squares_[rank][j].SetColor(sf::Color{209, 139, 71});
+      squares_[i][j].SetSize(square_size);
+      squares_[i][j].SetPosition(
+          GetPosition() + sf::Vector2f{square_size * j, square_size * (kSideSquaresNo - i - 1)});
+      if ((j + i) % 2 == 0) {
+        squares_[i][j].SetColor(sf::Color{209, 139, 71});   // dark
       } else {
-        squares_[rank][j].SetColor(sf::Color{255, 206, 158});
+        squares_[i][j].SetColor(sf::Color{255, 206, 158});  // light
       }
     }
   }
