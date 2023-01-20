@@ -61,6 +61,114 @@ void Chessboard::ResetSelectedSquare() {
   selected_square_->SetPiecePosition(selected_square_->GetPosition());
 }
 
+bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const {
+  // Check if the destination square is within the bounds of the board
+  if (file < 0 || file >= kSideSquaresNo || rank < 0 || rank >= kSideSquaresNo || end_file < 0 ||
+      end_file >= kSideSquaresNo || end_rank < 0 || end_rank >= kSideSquaresNo) {
+    return false;
+  }
+
+  Chessman* piece = squares_[rank][file].GetPiece();
+
+  // Check if the destination square is occupied by a piece of the same color
+  Chessman* end_piece = squares_[end_rank][end_file].GetPiece();
+  if (end_piece != nullptr && end_piece->IsWhite() == piece->IsWhite()) {
+    return false;
+  }
+
+  // Check if the move is valid for the specific type of piece
+  switch (piece->GetType()) {
+    case Chessman::Type::kPawn:
+      // Pawns can only move forward and capture diagonally
+      if (piece->IsWhite()) {
+        if (end_file != file && end_piece == nullptr) {
+          // Pawns can only capture diagonally
+          return false;
+        }
+        if (end_rank > rank) {
+          // Pawns can only move forward
+          return false;
+        }
+      } else {
+        if (end_file != file && end_piece == nullptr) {
+          // Pawns can only capture diagonally
+          return false;
+        }
+        if (end_rank < rank) {
+          // Pawns can only move forward
+          return false;
+        }
+      }
+      break;
+    case Chessman::Type::kKnight:
+      // knights can move in an "L" shape in any direction
+      if ((std::abs((int)(end_rank - rank)) != 2 || std::abs((int)(end_file - file)) != 1) &&
+          (std::abs((int)(end_rank - rank)) != 1 || std::abs((int)(end_file - file)) != 2)) {
+        return false;
+      }
+      break;
+    case Chessman::Type::kBishop:
+      // Bishops can move diagonally in any direction
+      if (std::abs((int)(end_rank - rank)) != std::abs((int)(end_file - file))) {
+        return false;
+      }
+      break;
+    case Chessman::Type::kRook:
+      // Rooks can move horizontally or vertically in any direction
+      if (end_rank != rank && end_file != file) {
+        return false;
+      }
+      break;
+    case Chessman::Type::kQueen:
+      // Queens can move like bishops or rooks
+      if (std::abs((int)(end_rank - rank)) != std::abs((int)(end_file - file)) &&
+          end_rank != rank && end_file != file) {
+        return false;
+      }
+      break;
+    case Chessman::Type::kKing:
+      // Kings can move one square in any direction
+      if (std::abs((int)(end_rank - rank)) > 1 || std::abs((int)(end_file - file)) > 1) {
+        return false;
+      }
+      break;
+  }
+
+  // Check if the path to the destination square is clear
+  //if (!isPathClear(end_rank, end_file, board)) {
+  //  return false;
+  //}
+    
+
+  // If all checks pass, the move is valid
+  return true;
+}
+
+bool Chessboard::Move(const sf::Vector2f& position) {
+  size_t file, rank;
+  for (size_t i = 0; i < kSideSquaresNo; i++) {
+    for (size_t j = 0; j < kSideSquaresNo; j++) {
+      if (squares_[i][j].Contains(selected_square_->GetPosition())) {
+        file = j;
+        rank = i;
+        break;
+      }
+    }
+  }
+
+  for (size_t i = 0; i < kSideSquaresNo; i++) {
+    for (size_t j = 0; j < kSideSquaresNo; j++) {
+      if (squares_[i][j].Contains(position)) {
+        if (MoveIsLegal(file, rank, j, i)) {
+          squares_[i][j].SetPiece(std::move(squares_[rank][file].MovePiece()));
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 Chessboard::Square::Square(float side) {
   SetSize(side);
 }
@@ -110,6 +218,14 @@ void Chessboard::Square::SetPiecePosition(const sf::Vector2f& position) {
   if (piece_) {
     piece_->setPosition(static_cast<sf::Vector2f>(position));
   }
+}
+
+Chessman* Chessboard::Square::GetPiece() const {
+  return piece_.get();
+}
+
+std::unique_ptr<Chessman> Chessboard::Square::MovePiece() {
+  return std::move(piece_);
 }
 
 void Chessboard::Square::draw(sf::RenderTarget& target, sf::RenderStates states) const {

@@ -25,6 +25,6 @@ class Game {
   TextureWrapper textures_;
   Chessboard board_;
 
-  bool press;
-  bool drag;
+  bool press_;
+  bool drag_;
 };

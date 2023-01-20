@@ -20,6 +20,8 @@ class Chessman : public sf::Transformable, public sf::Drawable {
   Chessman(Color color, Type type, const TextureWrapper& textures);
   void SetTexture(const sf::Texture& texture, bool resetRect = false);
   void SetSize(float size);
+  bool IsWhite() const;
+  Type GetType() const;
 
  protected:
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

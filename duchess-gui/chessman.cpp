@@ -12,6 +12,14 @@ void Chessman::SetSize(float size) {
   sprite_.setScale({scale, scale});
 }
 
+bool Chessman::IsWhite() const {
+  return type_ == kWhite;
+}
+
+Chessman::Type Chessman::GetType() const {
+  return type_;
+}
+
 void Chessman::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.transform *= getTransform();
   target.draw(sprite_, states);

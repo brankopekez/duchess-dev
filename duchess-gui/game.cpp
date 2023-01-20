@@ -7,8 +7,8 @@ const sf::Time Game::kTimePerFrame = sf::seconds(1.f / 60.f);
 Game::Game()
     : window_{sf::VideoMode(900, 900), "Duchess-GUI", sf::Style::Close},
       board_{720},
-      press{false},
-      drag{false} {
+      press_{false},
+      drag_{false} {
   LoadTextures();
   //board_.SetTexture(textures_.Get("chessboard"));
   board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kRook, 0, 0, textures_);
@@ -104,23 +104,25 @@ void Game::ProcessInput() {
         break;
       case sf::Event::MouseButtonPressed:
         if (event.mouseButton.button == sf::Mouse::Left) {
-          press = true;
+          press_ = true;
           board_.SelectSquareAt({(float)event.mouseButton.x, (float)event.mouseButton.y});
           std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
         }
         break;
       case sf::Event::MouseMoved:
-        if (press) {
-          drag = true;
+        if (press_) {
+          drag_ = true;
           board_.MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
           std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
         }
         break;
       case sf::Event::MouseButtonReleased:
-        if (event.mouseButton.button == sf::Mouse::Left) {
-          drag = false;
-          press = false;
-          board_.ResetSelectedSquare();
+        if (event.mouseButton.button == sf::Mouse::Left && press_) {
+          if (drag_ && !board_.Move({(float)event.mouseButton.x, (float)event.mouseButton.y})) {
+            board_.ResetSelectedSquare();
+          }
+          drag_ = false;
+          press_ = false;
         }
         break;
     }
