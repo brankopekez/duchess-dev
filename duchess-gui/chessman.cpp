@@ -13,7 +13,7 @@ void Chessman::SetSize(float size) {
 }
 
 bool Chessman::IsWhite() const {
-  return type_ == kWhite;
+  return color_ == kWhite;
 }
 
 Chessman::Type Chessman::GetType() const {

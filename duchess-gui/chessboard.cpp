@@ -9,12 +9,13 @@ Chessboard::Chessboard(const float size) : size_{size}, selected_square_{nullptr
   float square_size = size_ / kSideSquaresNo;
   for (size_t i = 0; i < kSideSquaresNo; i++) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
-      squares_[i][j].SetSize(square_size);
-      squares_[i][j].SetPosition(GetPosition() + sf::Vector2f{square_size * j, square_size * i});
-      if ((j + i) % 2 != 0) {
-        squares_[i][j].SetColor(sf::Color{209, 139, 71});
+      size_t rank = kSideSquaresNo - i - 1;
+      squares_[rank][j].SetSize(square_size);
+      squares_[rank][j].SetPosition(GetPosition() + sf::Vector2f{square_size * j, square_size * i});
+      if ((j + rank) % 2 != 0) {
+        squares_[rank][j].SetColor(sf::Color{209, 139, 71});
       } else {
-        squares_[i][j].SetColor(sf::Color{255, 206, 158});
+        squares_[rank][j].SetColor(sf::Color{255, 206, 158});
       }
     }
   }
@@ -29,7 +30,8 @@ void Chessboard::SetPosition(const sf::Vector2f& position) {
   float square_size = size_ / kSideSquaresNo;
   for (size_t i = 0; i < kSideSquaresNo; i++) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
-      squares_[i][j].SetPosition(position + sf::Vector2f{square_size * j, square_size * i});
+      squares_[kSideSquaresNo - i - 1][j].SetPosition(
+          position + sf::Vector2f{square_size * j, square_size * i});
     }
   }
 }
@@ -81,23 +83,35 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
     case Chessman::Type::kPawn:
       // Pawns can only move forward and capture diagonally
       if (piece->IsWhite()) {
-        if (end_file != file && end_piece == nullptr) {
+        if (end_file == file) {
+          if (rank == 1 && end_rank == 3 && squares_[2][file].GetPiece() == nullptr) {
+            return true;
+          }
+          if (end_rank - rank == 1 && squares_[end_rank][file].GetPiece() == nullptr) {
+            return true;
+          }
+          return false;
+        }
+        if (std::abs((int)(end_file - file)) == 1 && end_rank - rank == 1 && end_piece != nullptr) {
           // Pawns can only capture diagonally
-          return false;
+          return true;
         }
-        if (end_rank > rank) {
-          // Pawns can only move forward
-          return false;
-        }
+        return false;
       } else {
-        if (end_file != file && end_piece == nullptr) {
+        if (end_file == file) {
+          if (rank == 6 && end_rank == 4 && squares_[5][file].GetPiece() == nullptr) {
+            return true;
+          }
+          if (rank - end_rank == 1 && squares_[end_rank][file].GetPiece() == nullptr) {
+            return true;
+          }
+          return false;
+        }
+        if (std::abs((int)(file - end_file)) == 1 && rank - end_rank == 1 && end_piece != nullptr) {
           // Pawns can only capture diagonally
-          return false;
+          return true;
         }
-        if (end_rank < rank) {
-          // Pawns can only move forward
-          return false;
-        }
+        return false;
       }
       break;
     case Chessman::Type::kKnight:
@@ -138,7 +152,6 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
   //if (!isPathClear(end_rank, end_file, board)) {
   //  return false;
   //}
-    
 
   // If all checks pass, the move is valid
   return true;
