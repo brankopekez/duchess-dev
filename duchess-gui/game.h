@@ -24,4 +24,7 @@ class Game {
   sf::RenderWindow window_;
   TextureWrapper textures_;
   Chessboard board_;
+
+  bool press;
+  bool drag;
 };

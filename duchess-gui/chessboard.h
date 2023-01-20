@@ -16,6 +16,9 @@ class Chessboard : public sf::Drawable {
   void SetPosition(const sf::Vector2f& position);
   void NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
                 const TextureWrapper& textures);
+  void SelectSquareAt(const sf::Vector2f& position);
+  void MoveSelectedPiece(const sf::Vector2f& position);
+  void ResetSelectedSquare();
 
  protected:
   class Square : public sf::Drawable {
@@ -24,10 +27,13 @@ class Chessboard : public sf::Drawable {
     void SetColor(const sf::Color& color);
     void SetTexture(const sf::Texture& texture, bool resetRect = false);
     void SetSize(float side);
+    float GetSize() const;
     const sf::Vector2f& GetPosition() const;
     void SetPosition(const sf::Vector2f& position);
     void SetPiece(std::unique_ptr<Chessman> piece);
-
+    bool Contains(const sf::Vector2f& position) const;
+    void SetPiecePosition(const sf::Vector2f& position);
+    
    protected:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -44,4 +50,5 @@ class Chessboard : public sf::Drawable {
   float size_;
   Square squares_[kSideSquaresNo][kSideSquaresNo];
   sf::RectangleShape board_shape_;
+  Square* selected_square_;
 };
