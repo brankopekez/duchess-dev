@@ -45,7 +45,7 @@ Game::Game()
   board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kKnight, 6, 0, textures_);
   board_.NewPiece(Chessman::Color::kWhite, Chessman::Type::kRook, 7, 0, textures_);
 
-  //board_.SetPosition({90, 90});
+  board_.SetPosition({90, 90});
 }
 
 void Game::Run() {

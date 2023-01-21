@@ -49,6 +49,8 @@ class Chessboard : public sf::Drawable {
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  private:
+  bool IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
+
   static const int kSquaresNo = 64;
   static const int kSideSquaresNo = 8;
   float size_;

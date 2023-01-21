@@ -149,9 +149,9 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
   }
 
   // Check if the path to the destination square is clear
-  //if (!isPathClear(end_rank, end_file, board)) {
-  //  return false;
-  //}
+  if (!IsPathClear(file, rank, end_file, end_rank)) {
+    return false;
+  }
 
   // If all checks pass, the move is valid
   return true;
@@ -260,4 +260,43 @@ void Chessboard::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   if (selected_square_) {
     target.draw(*selected_square_, states);
   }
+}
+
+bool Chessboard::IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const {
+  Chessman* piece = squares_[rank][file].GetPiece();
+  auto type = piece->GetType();
+
+  // check the path for rook and queen moves
+  if (type == Chessman::Type::kRook || type == Chessman::Type::kQueen) {
+    if (end_rank == rank) {
+      // move is horizontal
+      int step = (end_file > file) ? 1 : -1;
+      for (int c = file + step; c != end_file; c += step) {
+        if (squares_[rank][c].GetPiece() != nullptr) {
+          return false;
+        }
+      }
+    } else if (end_file == file) {
+      // move is vertical
+      int step = (end_rank > rank) ? 1 : -1;
+      for (int r = rank + step; r != end_rank; r += step) {
+        if (squares_[r][file].GetPiece() != nullptr) {
+          return false;
+        }
+      }
+    }
+  }
+  // check the path for bishop and queen moves
+  if (type == Chessman::Type::kBishop || type == Chessman::Type::kQueen) {
+    if (std::abs((int)(end_rank - rank)) == std::abs((int)(end_file - file))) {
+      int rank_step = (end_rank > rank) ? 1 : -1;
+      int file_step = (end_file > file) ? 1 : -1;
+      for (int r = rank + rank_step, c = file + file_step; r != end_rank; r += rank_step, c += file_step) {
+        if (squares_[r][c].GetPiece() != nullptr) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
