@@ -9,8 +9,11 @@ Game::Game()
       board_{720},
       press_{false},
       drag_{false} {
+  window_.setVerticalSyncEnabled(true);
   LoadTextures();
+  textures_.SetSmooth(true);
   //board_.SetTexture(textures_.Get("chessboard"));
+
   board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kRook, 0, 7, textures_);
   board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kKnight, 1, 7, textures_);
   board_.NewPiece(Chessman::Color::kBlack, Chessman::Type::kBishop, 2, 7, textures_);
@@ -104,25 +107,24 @@ void Game::ProcessInput() {
         break;
       case sf::Event::MouseButtonPressed:
         if (event.mouseButton.button == sf::Mouse::Left) {
-          press_ = true;
-          board_.SelectSquareAt({(float)event.mouseButton.x, (float)event.mouseButton.y});
-          std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
+          press_ = board_.SelectPieceAt({(float)event.mouseButton.x, (float)event.mouseButton.y});
+          //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
         }
         break;
       case sf::Event::MouseMoved:
         if (press_) {
           drag_ = true;
           board_.MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
-          std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
+          //std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
         }
         break;
       case sf::Event::MouseButtonReleased:
-        if (event.mouseButton.button == sf::Mouse::Left && press_) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+          press_ = false;
           if (drag_ && !board_.Move({(float)event.mouseButton.x, (float)event.mouseButton.y})) {
-            board_.ResetSelectedSquare();
+            board_.ResetSelectedPiece();
           }
           drag_ = false;
-          press_ = false;
         }
         break;
     }

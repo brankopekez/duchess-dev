@@ -16,9 +16,9 @@ class Chessboard : public sf::Drawable {
   void SetPosition(const sf::Vector2f& position);
   void NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
                 const TextureWrapper& textures);
-  void SelectSquareAt(const sf::Vector2f& position);
+  bool SelectPieceAt(const sf::Vector2f& position);
   void MoveSelectedPiece(const sf::Vector2f& position);
-  void ResetSelectedSquare();
+  void ResetSelectedPiece();
   bool MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
   bool Move(const sf::Vector2f& position);
 
@@ -49,6 +49,7 @@ class Chessboard : public sf::Drawable {
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  private:
+  Chessman* GetPiece(size_t file, size_t rank) const;
   bool IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
 
   static const int kSquaresNo = 64;
