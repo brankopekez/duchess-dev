@@ -125,10 +125,11 @@ void Game::ProcessInput() {
         if (event.mouseButton.button == sf::Mouse::Left) {
           press_ = false;
           if (drag_) {
-            if (board_.Move({(float)event.mouseButton.x, (float)event.mouseButton.y})) {
+            if (!board_.Move({(float)event.mouseButton.x, (float)event.mouseButton.y})) {
               board_.ResetSelectedPiece();
+            } else {
+              board_.UnmarkAll();
             }
-            board_.UnmarkAll();
             drag_ = false;
           }
         }
