@@ -46,6 +46,14 @@ bool Chessboard::SelectPieceAt(const sf::Vector2f& position) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
       if (squares_[i][j].Contains(position) && squares_[i][j].GetPiece() != nullptr) {
         selected_square_ = &squares_[i][j];
+        UnmarkAll();
+        for (size_t k = 0; k < kSideSquaresNo; k++) {
+          for (size_t l = 0; l < kSideSquaresNo; l++) {
+            if (MoveIsLegal(j, i, l, k)) {
+              squares_[k][l].Mark();
+            }
+          }
+        }
         return true;
       }
     }
@@ -183,7 +191,15 @@ bool Chessboard::Move(const sf::Vector2f& position) {
   return false;
 }
 
-Chessboard::Square::Square(float side) {
+void Chessboard::UnmarkAll() {
+  for (size_t i = 0; i < kSideSquaresNo; i++) {
+    for (size_t j = 0; j < kSideSquaresNo; j++) {
+      squares_[i][j].Unmark();
+    }
+  }
+}
+
+Chessboard::Square::Square(float side) : marked_{false} {
   SetSize(side);
 }
 
@@ -242,11 +258,28 @@ std::unique_ptr<Chessman> Chessboard::Square::MovePiece() {
   return std::move(piece_);
 }
 
+void Chessboard::Square::Mark() {
+  marked_ = true;
+}
+
+void Chessboard::Square::Unmark() {
+  marked_ = false;
+}
+
 void Chessboard::Square::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   //states.transform *= getTransform();
   target.draw(shape_, states);
   if (piece_) {
     target.draw(*piece_);
+  }
+  if (marked_) {
+    float r = shape_.getSize().x / 2;
+    sf::CircleShape c;
+    c.setRadius(r / 2);
+    c.setFillColor({37, 150, 190, 120});
+    c.setOrigin({r / 2, r / 2});
+    c.setPosition(GetPosition() + sf::Vector2f{r, r});
+    target.draw(c);
   }
 }
 

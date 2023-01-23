@@ -21,6 +21,7 @@ class Chessboard : public sf::Drawable {
   void ResetSelectedPiece();
   bool MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
   bool Move(const sf::Vector2f& position);
+  void UnmarkAll();
 
  protected:
   class Square : public sf::Drawable {
@@ -37,6 +38,8 @@ class Chessboard : public sf::Drawable {
     void SetPiecePosition(const sf::Vector2f& position);
     Chessman* GetPiece() const;
     std::unique_ptr<Chessman> MovePiece();
+    void Mark();
+    void Unmark();
     
    protected:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -44,6 +47,7 @@ class Chessboard : public sf::Drawable {
    private:
     sf::RectangleShape shape_;
     std::unique_ptr<Chessman> piece_;
+    bool marked_;
   };
 
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
