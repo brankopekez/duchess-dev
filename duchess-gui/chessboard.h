@@ -40,6 +40,8 @@ class Chessboard : public sf::Drawable {
     std::unique_ptr<Chessman> MovePiece();
     void Mark();
     void Unmark();
+    void Threaten();
+    void Unthreaten();
     
    protected:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -48,6 +50,7 @@ class Chessboard : public sf::Drawable {
     sf::RectangleShape shape_;
     std::unique_ptr<Chessman> piece_;
     bool marked_;
+    bool threatened_;
   };
 
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

@@ -50,7 +50,11 @@ bool Chessboard::SelectPieceAt(const sf::Vector2f& position) {
         for (size_t k = 0; k < kSideSquaresNo; k++) {
           for (size_t l = 0; l < kSideSquaresNo; l++) {
             if (MoveIsLegal(j, i, l, k)) {
-              squares_[k][l].Mark();
+                if (GetPiece(l, k) != nullptr) {
+                squares_[k][l].Threaten();
+                } else {
+                  squares_[k][l].Mark();
+                }
             }
           }
         }
@@ -195,11 +199,12 @@ void Chessboard::UnmarkAll() {
   for (size_t i = 0; i < kSideSquaresNo; i++) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
       squares_[i][j].Unmark();
+      squares_[i][j].Unthreaten();
     }
   }
 }
 
-Chessboard::Square::Square(float side) : marked_{false} {
+Chessboard::Square::Square(float side) : marked_{false}, threatened_{false} {
   SetSize(side);
 }
 
@@ -266,6 +271,14 @@ void Chessboard::Square::Unmark() {
   marked_ = false;
 }
 
+void Chessboard::Square::Threaten() {
+  threatened_ = true;
+}
+
+void Chessboard::Square::Unthreaten() {
+  threatened_ = false;
+}
+
 void Chessboard::Square::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   //states.transform *= getTransform();
   target.draw(shape_, states);
@@ -280,6 +293,11 @@ void Chessboard::Square::draw(sf::RenderTarget& target, sf::RenderStates states)
     c.setOrigin({r / 2, r / 2});
     c.setPosition(GetPosition() + sf::Vector2f{r, r});
     target.draw(c);
+  }
+  if (threatened_) {
+    sf::RectangleShape t{shape_};
+    t.setFillColor(sf::Color{255, 93, 82, 120});
+    target.draw(t);
   }
 }
 
