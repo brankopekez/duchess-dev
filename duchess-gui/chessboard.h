@@ -8,8 +8,9 @@
 
 #include "chessman.h"
 #include "entity.h"
+#include "scene_node.h"
 
-class Chessboard : public sf::Drawable {
+class Chessboard : public SceneNode {
  public:
   Chessboard(const float size);
   const sf::Vector2f& GetPosition() const;
@@ -24,7 +25,7 @@ class Chessboard : public sf::Drawable {
   void UnmarkAll();
 
  protected:
-  class Square : public sf::Drawable {
+  class Square : public SceneNode {
    public:
     Square(float side = 0);
     void SetColor(const sf::Color& color);
@@ -61,6 +62,7 @@ class Chessboard : public sf::Drawable {
 
   static const int kSquaresNo = 64;
   static const int kSideSquaresNo = 8;
+
   float size_;
   Square squares_[kSideSquaresNo][kSideSquaresNo];
   sf::RectangleShape board_shape_;

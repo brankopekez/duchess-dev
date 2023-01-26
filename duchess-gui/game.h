@@ -1,11 +1,12 @@
 #pragma once
 
-#include <vector>
+#include <array>
 
 #include <SFML/Graphics.hpp>
 
 #include "chessboard.h"
 #include "chessman.h"
+#include "scene_node.h"
 #include "texture_wrapper.h"
 
 class Game {
@@ -14,16 +15,22 @@ class Game {
   void Run();
 
  private:
+  enum Layer { kBoard, kPieces, kAir, kLayerCount };
+
   static const sf::Time kTimePerFrame;
 
-  void LoadTextures();
+  void LoadTextures(bool smooth = true);
+  void BuildScene();
   void ProcessInput();
   void Update(sf::Time elapsedTime);
   void Render();
 
   sf::RenderWindow window_;
   TextureWrapper textures_;
-  Chessboard board_;
+
+  SceneNode scene_graph_;
+  std::array<SceneNode*, kLayerCount> scene_layers_;
+  Chessboard* board_;
 
   bool press_;
   bool drag_;

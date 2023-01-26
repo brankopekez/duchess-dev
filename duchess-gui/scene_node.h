@@ -4,7 +4,7 @@
 
 #include <SFML/Graphics.hpp>
 
-class SceneNode : public sf::Transformable, public sf::Drawable, public sf::NonCopyable {
+class SceneNode : public sf::Transformable, public sf::Drawable, private sf::NonCopyable {
  public:
   void AttachChild(std::unique_ptr<SceneNode> child);
 

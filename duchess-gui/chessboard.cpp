@@ -97,7 +97,7 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
       // Pawns can only move forward and capture diagonally
       if (piece->IsWhite()) {
         if (end_file == file) {
-          if (rank == 1 && end_rank == 3 && GetPiece(file, 2) == nullptr) {
+          if (rank == 1 && end_rank == 3 && GetPiece(file, 2) == nullptr && end_piece == nullptr) {
             return true;
           }
           if (end_rank - rank == 1 && GetPiece(file, end_rank) == nullptr) {
@@ -112,7 +112,7 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
         return false;
       } else {
         if (end_file == file) {
-          if (rank == 6 && end_rank == 4 && GetPiece(file, 5) == nullptr) {
+          if (rank == 6 && end_rank == 4 && GetPiece(file, 5) == nullptr && end_piece == nullptr) {
             return true;
           }
           if (rank - end_rank == 1 && GetPiece(file, end_rank) == nullptr) {
