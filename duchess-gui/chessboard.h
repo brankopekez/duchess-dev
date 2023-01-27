@@ -3,6 +3,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <array>
 
 #include <SFML/Graphics.hpp>
 
@@ -45,7 +46,7 @@ class Chessboard : public SceneNode {
     void Unthreaten();
     
    protected:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
 
    private:
     sf::RectangleShape shape_;
@@ -54,9 +55,11 @@ class Chessboard : public SceneNode {
     bool threatened_;
   };
 
-  virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+  virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  private:
+  Square* GetSquare(size_t file, size_t rank) const;
+  void SetSquare(size_t file, size_t rank, Square* square);
   Chessman* GetPiece(size_t file, size_t rank) const;
   bool IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
 
@@ -64,7 +67,7 @@ class Chessboard : public SceneNode {
   static const int kSideSquaresNo = 8;
 
   float size_;
-  Square squares_[kSideSquaresNo][kSideSquaresNo];
+  std::array<Square*, kSquaresNo> squares_;
   sf::RectangleShape board_shape_;
   Square* selected_square_;
 };

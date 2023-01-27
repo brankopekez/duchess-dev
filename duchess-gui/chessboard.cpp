@@ -6,17 +6,23 @@ Chessboard::Chessboard(const float size) : size_{size}, selected_square_{nullptr
   board_shape_.setSize({size, size});
   board_shape_.setOutlineColor(sf::Color::Black);
   board_shape_.setOutlineThickness(1);
+
+  squares_.fill(nullptr);
   float square_size = size_ / kSideSquaresNo;
+  for (auto& square : squares_) {}
   for (size_t i = 0; i < kSideSquaresNo; i++) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
-      squares_[i][j].SetSize(square_size);
-      squares_[i][j].SetPosition(
-          GetPosition() + sf::Vector2f{square_size * j, square_size * (kSideSquaresNo - i - 1)});
+      std::unique_ptr<Square> square{new Square(square_size)};
+      square->SetSize(square_size);
+      square->SetPosition(GetPosition() +
+                          sf::Vector2f{square_size * j, square_size * (kSideSquaresNo - i - 1)});
       if ((j + i) % 2 == 0) {
-        squares_[i][j].SetColor(sf::Color{209, 139, 71});  // dark
+        square->SetColor(sf::Color{209, 139, 71});  // dark
       } else {
-        squares_[i][j].SetColor(sf::Color{255, 206, 158});  // light
+        square->SetColor(sf::Color{255, 206, 158});  // light
       }
+      SetSquare(i, j, square.get());
+      AttachChild(std::move(square));
     }
   }
 }
@@ -38,7 +44,7 @@ void Chessboard::SetPosition(const sf::Vector2f& position) {
 
 void Chessboard::NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
                           const TextureWrapper& textures) {
-  squares_[rank][file].SetPiece(std::unique_ptr<Chessman>(new Chessman(color, type, textures)));
+  GetSquare(file, rank)->SetPiece(std::unique_ptr<Chessman>(new Chessman(color, type, textures)));
 }
 
 bool Chessboard::SelectPieceAt(const sf::Vector2f& position) {
@@ -50,11 +56,11 @@ bool Chessboard::SelectPieceAt(const sf::Vector2f& position) {
         for (size_t k = 0; k < kSideSquaresNo; k++) {
           for (size_t l = 0; l < kSideSquaresNo; l++) {
             if (MoveIsLegal(j, i, l, k)) {
-                if (GetPiece(l, k) != nullptr) {
+              if (GetPiece(l, k) != nullptr) {
                 squares_[k][l].Threaten();
-                } else {
-                  squares_[k][l].Mark();
-                }
+              } else {
+                squares_[k][l].Mark();
+              }
             }
           }
         }
@@ -279,7 +285,7 @@ void Chessboard::Square::Unthreaten() {
   threatened_ = false;
 }
 
-void Chessboard::Square::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
   //states.transform *= getTransform();
   target.draw(shape_, states);
   if (piece_) {
@@ -301,21 +307,29 @@ void Chessboard::Square::draw(sf::RenderTarget& target, sf::RenderStates states)
   }
 }
 
-void Chessboard::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-  //states.transform *= getTransform();
+void Chessboard::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
+  states.transform *= getTransform();
   target.draw(board_shape_, states);
-  for (size_t i = 0; i < kSideSquaresNo; i++) {
-    for (size_t j = 0; j < kSideSquaresNo; j++) {
-      target.draw(squares_[i][j], states);
-    }
-  }
-  if (selected_square_) {
-    target.draw(*selected_square_, states);
-  }
+  //for (size_t i = 0; i < kSideSquaresNo; i++) {
+  //  for (size_t j = 0; j < kSideSquaresNo; j++) {
+  //    target.draw(squares_[i][j], states);
+  //  }
+  //}
+  //if (selected_square_) {
+  //  target.draw(*selected_square_, states);
+  //}
+}
+
+Chessboard::Square* Chessboard::GetSquare(size_t file, size_t rank) const {
+  return squares_.at(file + (kSideSquaresNo - rank - 1));
+}
+
+void Chessboard::SetSquare(size_t file, size_t rank, Square* square) {
+  squares_.at(file + (kSideSquaresNo - rank - 1)) = square;
 }
 
 Chessman* Chessboard::GetPiece(size_t file, size_t rank) const {
-  return squares_[rank][file].GetPiece();
+  return GetSquare(file, rank)->GetPiece();
 }
 
 bool Chessboard::IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const {

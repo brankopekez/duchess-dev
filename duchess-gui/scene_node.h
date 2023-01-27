@@ -7,6 +7,8 @@
 class SceneNode : public sf::Transformable, public sf::Drawable, private sf::NonCopyable {
  public:
   void AttachChild(std::unique_ptr<SceneNode> child);
+  sf::Vector2f getWorldPosition() const;
+  sf::Transform getWorldTransform() const;
 
  protected:
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
