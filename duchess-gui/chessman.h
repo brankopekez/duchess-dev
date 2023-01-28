@@ -1,21 +1,12 @@
 #pragma once
 
 #include "entity.h"
+#include "scene_node.h"
 
-class Chessman : public sf::Transformable, public sf::Drawable {
+class Chessman : public SceneNode {
  public:
-  enum Color {
-    kWhite     =   0x0000'0001, 
-    kBlack     =   0x0000'0010 
-  };
-  enum Type {
-    kKing      =   0x0000'0000,
-    kQueen     =   0x0001'0000,
-    kBishop    =   0x0010'0000,
-    kKnight    =   0x0011'0000,
-    kRook      =   0x0100'0000,
-    kPawn      =   0x0101'0000
-  };
+  enum Color { kWhite, kBlack, kColorCount };
+  enum Type { kKing, kQueen, kBishop, kKnight, kRook, kPawn, kTypeCount };
 
   Chessman(Color color, Type type, const TextureWrapper& textures);
   void SetTexture(const sf::Texture& texture, bool resetRect = false);
@@ -24,7 +15,7 @@ class Chessman : public sf::Transformable, public sf::Drawable {
   Type GetType() const;
 
  protected:
-  virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+  virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  private:
   Color color_;

@@ -3,60 +3,47 @@
 #include <cmath>
 
 Chessboard::Chessboard(const float size) : size_{size}, selected_square_{nullptr} {
+  // Prepare the border (board outline)
   board_shape_.setSize({size, size});
   board_shape_.setOutlineColor(sf::Color::Black);
   board_shape_.setOutlineThickness(1);
 
+  // Prepare the squares
   squares_.fill(nullptr);
   float square_size = size_ / kSideSquaresNo;
-  for (auto& square : squares_) {}
   for (size_t i = 0; i < kSideSquaresNo; i++) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
       std::unique_ptr<Square> square{new Square(square_size)};
       square->SetSize(square_size);
-      square->SetPosition(GetPosition() +
-                          sf::Vector2f{square_size * j, square_size * (kSideSquaresNo - i - 1)});
+      square->move(sf::Vector2f{square_size * i, square_size * (kSideSquaresNo - j - 1)});
       if ((j + i) % 2 == 0) {
         square->SetColor(sf::Color{209, 139, 71});  // dark
       } else {
         square->SetColor(sf::Color{255, 206, 158});  // light
       }
-      SetSquare(i, j, square.get());
+      SquareAt(i, j) = square.get();
       AttachChild(std::move(square));
-    }
-  }
-}
-
-const sf::Vector2f& Chessboard::GetPosition() const {
-  return board_shape_.getPosition();
-}
-
-void Chessboard::SetPosition(const sf::Vector2f& position) {
-  board_shape_.setPosition(position);
-  float square_size = size_ / kSideSquaresNo;
-  for (size_t i = 0; i < kSideSquaresNo; i++) {
-    for (size_t j = 0; j < kSideSquaresNo; j++) {
-      squares_[kSideSquaresNo - i - 1][j].SetPosition(
-          position + sf::Vector2f{square_size * j, square_size * i});
     }
   }
 }
 
 void Chessboard::NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
                           const TextureWrapper& textures) {
-  GetSquare(file, rank)->SetPiece(std::unique_ptr<Chessman>(new Chessman(color, type, textures)));
+  std::unique_ptr<Chessman> piece{new Chessman(color, type, textures)};
+  PieceAt(file, rank) = piece.get();
+  SquareAt(file, rank)->AttachChild(std::move(piece));
 }
 
 bool Chessboard::SelectPieceAt(const sf::Vector2f& position) {
   for (size_t i = 0; i < kSideSquaresNo; i++) {
     for (size_t j = 0; j < kSideSquaresNo; j++) {
-      if (squares_[i][j].Contains(position) && squares_[i][j].GetPiece() != nullptr) {
+      if (SquareAt(i, j)->Contains(position) && PieceAt(i, j) != nullptr) {
         selected_square_ = &squares_[i][j];
         UnmarkAll();
         for (size_t k = 0; k < kSideSquaresNo; k++) {
           for (size_t l = 0; l < kSideSquaresNo; l++) {
             if (MoveIsLegal(j, i, l, k)) {
-              if (GetPiece(l, k) != nullptr) {
+              if (PieceAt(l, k) != nullptr) {
                 squares_[k][l].Threaten();
               } else {
                 squares_[k][l].Mark();
@@ -79,7 +66,7 @@ void Chessboard::MoveSelectedPiece(const sf::Vector2f& position) {
 }
 
 void Chessboard::ResetSelectedPiece() {
-  selected_square_->SetPiecePosition(selected_square_->GetPosition());
+  selected_square_->SetPiecePosition(selected_square_->getPosition());
 }
 
 bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const {
@@ -89,10 +76,10 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
     return false;
   }
 
-  Chessman* piece = GetPiece(file, rank);
+  Chessman* piece = PieceAt(file, rank);
 
   // Check if the destination square is occupied by a piece of the same color
-  Chessman* end_piece = GetPiece(end_file, end_rank);
+  Chessman* end_piece = PieceAt(end_file, end_rank);
   if (end_piece != nullptr && end_piece->IsWhite() == piece->IsWhite()) {
     return false;
   }
@@ -103,10 +90,10 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
       // Pawns can only move forward and capture diagonally
       if (piece->IsWhite()) {
         if (end_file == file) {
-          if (rank == 1 && end_rank == 3 && GetPiece(file, 2) == nullptr && end_piece == nullptr) {
+          if (rank == 1 && end_rank == 3 && PieceAt(file, 2) == nullptr && end_piece == nullptr) {
             return true;
           }
-          if (end_rank - rank == 1 && GetPiece(file, end_rank) == nullptr) {
+          if (end_rank - rank == 1 && PieceAt(file, end_rank) == nullptr) {
             return true;
           }
           return false;
@@ -118,10 +105,10 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
         return false;
       } else {
         if (end_file == file) {
-          if (rank == 6 && end_rank == 4 && GetPiece(file, 5) == nullptr && end_piece == nullptr) {
+          if (rank == 6 && end_rank == 4 && PieceAt(file, 5) == nullptr && end_piece == nullptr) {
             return true;
           }
-          if (rank - end_rank == 1 && GetPiece(file, end_rank) == nullptr) {
+          if (rank - end_rank == 1 && PieceAt(file, end_rank) == nullptr) {
             return true;
           }
           return false;
@@ -177,27 +164,27 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
 }
 
 bool Chessboard::Move(const sf::Vector2f& position) {
-  size_t file, rank;
-  for (size_t i = 0; i < kSideSquaresNo; i++) {
-    for (size_t j = 0; j < kSideSquaresNo; j++) {
-      if (squares_[i][j].Contains(selected_square_->GetPosition())) {
-        file = j;
-        rank = i;
-        break;
-      }
-    }
-  }
+  //size_t file, rank;
+  //for (size_t i = 0; i < kSideSquaresNo; i++) {
+  //  for (size_t j = 0; j < kSideSquaresNo; j++) {
+  //    if (squares_[i][j].Contains(selected_square_->getPosition())) {
+  //      file = j;
+  //      rank = i;
+  //      break;
+  //    }
+  //  }
+  //}
 
-  for (size_t i = 0; i < kSideSquaresNo; i++) {
-    for (size_t j = 0; j < kSideSquaresNo; j++) {
-      if (squares_[i][j].Contains(position)) {
-        if (MoveIsLegal(file, rank, j, i)) {
-          squares_[i][j].SetPiece(std::move(squares_[rank][file].MovePiece()));
-          return true;
-        }
-      }
-    }
-  }
+  //for (size_t i = 0; i < kSideSquaresNo; i++) {
+  //  for (size_t j = 0; j < kSideSquaresNo; j++) {
+  //    if (squares_[i][j].Contains(position)) {
+  //      if (MoveIsLegal(file, rank, j, i)) {
+  //        SetPiece(i, j, squares_[rank][file].MovePiece());
+  //        return true;
+  //      }
+  //    }
+  //  }
+  //}
   return false;
 }
 
@@ -230,20 +217,12 @@ float Chessboard::Square::GetSize() const {
   return shape_.getSize().x;
 }
 
-const sf::Vector2f& Chessboard::Square::GetPosition() const {
-  return shape_.getPosition();
+Chessman* const& Chessboard::Square::Piece() const {
+  return piece_;
 }
 
-void Chessboard::Square::SetPosition(const sf::Vector2f& position) {
-  shape_.setPosition(position);
-  if (piece_) {
-    piece_->setPosition(position);
-  }
-}
-
-void Chessboard::Square::SetPiece(std::unique_ptr<Chessman> piece) {
-  piece_ = std::move(piece);
-  piece_->setPosition(GetPosition());
+Chessman*& Chessboard::Square::Piece() {
+  return piece_;
 }
 
 bool Chessboard::Square::Contains(const sf::Vector2f& position) const {
@@ -261,12 +240,8 @@ void Chessboard::Square::SetPiecePosition(const sf::Vector2f& position) {
   }
 }
 
-Chessman* Chessboard::Square::GetPiece() const {
-  return piece_.get();
-}
-
-std::unique_ptr<Chessman> Chessboard::Square::MovePiece() {
-  return std::move(piece_);
+Chessman* Chessboard::Square::MovePiece() {
+  return piece_;
 }
 
 void Chessboard::Square::Mark() {
@@ -286,9 +261,8 @@ void Chessboard::Square::Unthreaten() {
 }
 
 void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
-  //states.transform *= getTransform();
   target.draw(shape_, states);
-  if (piece_) {
+  /*if (piece_) {
     target.draw(*piece_);
   }
   if (marked_) {
@@ -304,36 +278,31 @@ void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates 
     sf::RectangleShape t{shape_};
     t.setFillColor(sf::Color{255, 93, 82, 120});
     target.draw(t);
-  }
+  }*/
 }
 
 void Chessboard::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
-  states.transform *= getTransform();
   target.draw(board_shape_, states);
-  //for (size_t i = 0; i < kSideSquaresNo; i++) {
-  //  for (size_t j = 0; j < kSideSquaresNo; j++) {
-  //    target.draw(squares_[i][j], states);
-  //  }
-  //}
-  //if (selected_square_) {
-  //  target.draw(*selected_square_, states);
-  //}
 }
 
-Chessboard::Square* Chessboard::GetSquare(size_t file, size_t rank) const {
-  return squares_.at(file + (kSideSquaresNo - rank - 1));
+Chessboard::Square* const& Chessboard::SquareAt(size_t file, size_t rank) const {
+  return squares_.at(file + (kSideSquaresNo - rank - 1) * kSideSquaresNo);
 }
 
-void Chessboard::SetSquare(size_t file, size_t rank, Square* square) {
-  squares_.at(file + (kSideSquaresNo - rank - 1)) = square;
+Chessboard::Square*& Chessboard::SquareAt(size_t file, size_t rank) {
+  return squares_.at(file + (kSideSquaresNo - rank - 1) * kSideSquaresNo);
 }
 
-Chessman* Chessboard::GetPiece(size_t file, size_t rank) const {
-  return GetSquare(file, rank)->GetPiece();
+Chessman* const& Chessboard::PieceAt(size_t file, size_t rank) const {
+  return SquareAt(file, rank)->Piece();
+}
+
+Chessman*& Chessboard::PieceAt(size_t file, size_t rank) {
+  return SquareAt(file, rank)->Piece();
 }
 
 bool Chessboard::IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const {
-  Chessman* piece = GetPiece(file, rank);
+  Chessman* piece = PieceAt(file, rank);
   auto type = piece->GetType();
 
   // check the path for rook and queen moves
@@ -342,7 +311,7 @@ bool Chessboard::IsPathClear(size_t file, size_t rank, size_t end_file, size_t e
       // move is horizontal
       int step = (end_file > file) ? 1 : -1;
       for (int f = file + step; f != end_file; f += step) {
-        if (GetPiece(f, rank) != nullptr) {
+        if (PieceAt(f, rank) != nullptr) {
           return false;
         }
       }
@@ -350,7 +319,7 @@ bool Chessboard::IsPathClear(size_t file, size_t rank, size_t end_file, size_t e
       // move is vertical
       int step = (end_rank > rank) ? 1 : -1;
       for (int r = rank + step; r != end_rank; r += step) {
-        if (GetPiece(file, r) != nullptr) {
+        if (PieceAt(file, r) != nullptr) {
           return false;
         }
       }
@@ -363,7 +332,7 @@ bool Chessboard::IsPathClear(size_t file, size_t rank, size_t end_file, size_t e
       int file_step = (end_file > file) ? 1 : -1;
       for (int r = rank + rank_step, f = file + file_step; r != end_rank;
            r += rank_step, f += file_step) {
-        if (GetPiece(f, r) != nullptr) {
+        if (PieceAt(f, r) != nullptr) {
           return false;
         }
       }

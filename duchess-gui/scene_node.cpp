@@ -27,7 +27,6 @@ void SceneNode::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 void SceneNode::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {}
 
 void SceneNode::DrawChildren(sf::RenderTarget& target, sf::RenderStates states) const {
-  states.transform *= getTransform();
   for (const auto& child : children_) {
     target.draw(*child, states);
   }

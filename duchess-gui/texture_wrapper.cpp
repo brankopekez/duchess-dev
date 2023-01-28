@@ -3,7 +3,7 @@
 #include <cassert>
 #include <stdexcept>
 
-void TextureWrapper::Load(int id, const std::string& filename,
+void TextureWrapper::Load(Textures::ID id, const std::string& filename,
                           const sf::IntRect& area) noexcept(false) {
   std::unique_ptr<sf::Texture> texture{new sf::Texture};
   if (!texture->loadFromFile(filename, area)) {
@@ -13,7 +13,7 @@ void TextureWrapper::Load(int id, const std::string& filename,
   assert(inserted.second);
 }
 
-sf::Texture& TextureWrapper::Get(int id) noexcept(false) {
+sf::Texture& TextureWrapper::Get(Textures::ID id) noexcept(false) {
   if (auto search = textures_.find(id); search != textures_.end()) {
     return *search->second;
   } else {
@@ -21,8 +21,7 @@ sf::Texture& TextureWrapper::Get(int id) noexcept(false) {
   }
 }
 
-const sf::Texture& TextureWrapper::Get(int id) const
-    noexcept(false) {
+const sf::Texture& TextureWrapper::Get(Textures::ID id) const noexcept(false) {
   if (auto search = textures_.find(id); search != textures_.end()) {
     return *search->second;
   } else {
@@ -30,7 +29,7 @@ const sf::Texture& TextureWrapper::Get(int id) const
   }
 }
 
-void TextureWrapper::SetSmooth(bool smooth) noexcept(true) {
+void TextureWrapper::Smooth(bool smooth) noexcept(true) {
   for (auto const& t : textures_) {
     t.second->setSmooth(smooth);
   }

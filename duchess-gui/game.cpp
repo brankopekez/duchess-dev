@@ -29,7 +29,7 @@ Game::Game()
   board_->NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn, 5, 6, textures_);
   board_->NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn, 6, 6, textures_);
   board_->NewPiece(Chessman::Color::kBlack, Chessman::Type::kPawn, 7, 6, textures_);
-
+  
   board_->NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn, 0, 1, textures_);
   board_->NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn, 1, 1, textures_);
   board_->NewPiece(Chessman::Color::kWhite, Chessman::Type::kPawn, 2, 1, textures_);
@@ -46,8 +46,6 @@ Game::Game()
   board_->NewPiece(Chessman::Color::kWhite, Chessman::Type::kBishop, 5, 0, textures_);
   board_->NewPiece(Chessman::Color::kWhite, Chessman::Type::kKnight, 6, 0, textures_);
   board_->NewPiece(Chessman::Color::kWhite, Chessman::Type::kRook, 7, 0, textures_);
-
-  board_->SetPosition({90, 90});
 }
 
 void Game::Run() {
@@ -66,38 +64,9 @@ void Game::Run() {
 }
 
 void Game::LoadTextures(bool smooth) {
-  textures_.SetSmooth(smooth);
-
-  //textures_.Load("chessboard", "Media/Textures/chessboard.png");
-  //textures_.Load("white_square", "Media/Textures/white_square.png");
-  //textures_.Load("black_square", "Media/Textures/black_square.png");
-
   const std::string chess_pieces = "Media/Textures/chess_pieces.png";
-  int d = 90;
-  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kKing, chess_pieces,
-                 sf::IntRect(0, 0, d, d));
-  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kKing, chess_pieces,
-                 sf::IntRect(0, d, d, d));
-  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kQueen, chess_pieces,
-                 sf::IntRect(d, 0, d, d));
-  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kQueen, chess_pieces,
-                 sf::IntRect(d, d, d, d));
-  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kBishop, chess_pieces,
-                 sf::IntRect(2 * d, 0, d, d));
-  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kBishop, chess_pieces,
-                 sf::IntRect(2 * d, d, d, d));
-  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kKnight, chess_pieces,
-                 sf::IntRect(3 * d, 0, d, d));
-  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kKnight, chess_pieces,
-                 sf::IntRect(3 * d, d, d, d));
-  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kRook, chess_pieces,
-                 sf::IntRect(4 * d, 0, d, d));
-  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kRook, chess_pieces,
-                 sf::IntRect(4 * d, d, d, d));
-  textures_.Load(Chessman::Color::kWhite | Chessman::Type::kPawn, chess_pieces,
-                 sf::IntRect(5 * d, 0, d, d));
-  textures_.Load(Chessman::Color::kBlack | Chessman::Type::kPawn, chess_pieces,
-                 sf::IntRect(5 * d, d, d, d));
+  textures_.Load(Textures::kChessPieces, chess_pieces);
+  textures_.Smooth(smooth);
 }
 
 void Game::BuildScene() {
@@ -111,10 +80,10 @@ void Game::BuildScene() {
 
   // Add the chessboard
   std::unique_ptr<Chessboard> b{new Chessboard(720)};
+  b->setPosition({90, 90});
   board_ = b.get();
   scene_layers_[kBoard]->AttachChild(std::move(b));
 }
-
 
 void Game::ProcessInput() {
   sf::Event event;
@@ -123,35 +92,35 @@ void Game::ProcessInput() {
       case sf::Event::Closed:
         window_.close();
         break;
-      case sf::Event::MouseButtonPressed:
-        if (event.mouseButton.button == sf::Mouse::Left) {
-          press_ = board_->SelectPieceAt({(float)event.mouseButton.x, (float)event.mouseButton.y});
-          if (!press_) {
-            board_->UnmarkAll();
-          }
-          //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
-        }
-        break;
-      case sf::Event::MouseMoved:
-        if (press_) {
-          drag_ = true;
-          board_->MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
-          //std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
-        }
-        break;
-      case sf::Event::MouseButtonReleased:
-        if (event.mouseButton.button == sf::Mouse::Left) {
-          press_ = false;
-          if (drag_) {
-            if (!board_->Move({(float)event.mouseButton.x, (float)event.mouseButton.y})) {
-              board_->ResetSelectedPiece();
-            } else {
-              board_->UnmarkAll();
-            }
-            drag_ = false;
-          }
-        }
-        break;
+        //case sf::Event::MouseButtonPressed:
+        //  if (event.mouseButton.button == sf::Mouse::Left) {
+        //    press_ = board_->SelectPieceAt({(float)event.mouseButton.x, (float)event.mouseButton.y});
+        //    if (!press_) {
+        //      board_->UnmarkAll();
+        //    }
+        //    //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
+        //  }
+        //  break;
+        //case sf::Event::MouseMoved:
+        //  if (press_) {
+        //    drag_ = true;
+        //    board_->MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
+        //    //std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
+        //  }
+        //  break;
+        //case sf::Event::MouseButtonReleased:
+        //  if (event.mouseButton.button == sf::Mouse::Left) {
+        //    press_ = false;
+        //    if (drag_) {
+        //      if (!board_->Move({(float)event.mouseButton.x, (float)event.mouseButton.y})) {
+        //        board_->ResetSelectedPiece();
+        //      } else {
+        //        board_->UnmarkAll();
+        //      }
+        //      drag_ = false;
+        //    }
+        //  }
+        //  break;
     }
   }
 }
