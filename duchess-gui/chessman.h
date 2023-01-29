@@ -10,6 +10,7 @@ class Chessman : public SceneNode {
 
   Chessman(Color color, Type type, const TextureWrapper& textures);
   void SetTexture(const sf::Texture& texture, bool resetRect = false);
+  float GetSize() const;
   void SetSize(float size);
   bool IsWhite() const;
   Type GetType() const;

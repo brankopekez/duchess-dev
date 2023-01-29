@@ -51,8 +51,12 @@ void Chessman::SetTexture(const sf::Texture& texture, bool resetRect) {
   sprite_.setTexture(texture, resetRect);
 }
 
+float Chessman::GetSize() const {
+  return sprite_.getTextureRect().width;
+}
+
 void Chessman::SetSize(float size) {
-  float scale = size / sprite_.getTexture()->getSize().x;
+  float scale = size / GetSize();
   sprite_.setScale({scale, scale});
 }
 

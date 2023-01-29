@@ -34,4 +34,5 @@ class Game {
 
   bool press_;
   bool drag_;
+  Chessman* selected_piece_;
 };

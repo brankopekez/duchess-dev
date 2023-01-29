@@ -1,5 +1,6 @@
 #include "chessboard.h"
 
+#include <cassert>
 #include <cmath>
 
 Chessboard::Chessboard(const float size) : size_{size}, selected_square_{nullptr} {
@@ -35,26 +36,33 @@ void Chessboard::NewPiece(Chessman::Color color, Chessman::Type type, size_t fil
 }
 
 bool Chessboard::SelectPieceAt(const sf::Vector2f& position) {
-  for (size_t i = 0; i < kSideSquaresNo; i++) {
-    for (size_t j = 0; j < kSideSquaresNo; j++) {
-      if (SquareAt(i, j)->Contains(position) && PieceAt(i, j) != nullptr) {
-        selected_square_ = &squares_[i][j];
-        UnmarkAll();
-        for (size_t k = 0; k < kSideSquaresNo; k++) {
-          for (size_t l = 0; l < kSideSquaresNo; l++) {
-            if (MoveIsLegal(j, i, l, k)) {
-              if (PieceAt(l, k) != nullptr) {
-                squares_[k][l].Threaten();
-              } else {
-                squares_[k][l].Mark();
-              }
-            }
-          }
-        }
-        return true;
-      }
+  for (const auto& square : squares_) {
+    if (square->Contains(position)) {
+      selected_square_ = square;
+      return true;
     }
   }
+  return false;
+  //for (size_t i = 0; i < kSideSquaresNo; i++) {
+  //  for (size_t j = 0; j < kSideSquaresNo; j++) {
+  //    if (SquareAt(i, j)->Contains(position) && PieceAt(i, j) != nullptr) {
+  //      selected_square_ = &squares_[i][j];
+  //      UnmarkAll();
+  //      for (size_t k = 0; k < kSideSquaresNo; k++) {
+  //        for (size_t l = 0; l < kSideSquaresNo; l++) {
+  //          if (MoveIsLegal(j, i, l, k)) {
+  //            if (PieceAt(l, k) != nullptr) {
+  //              squares_[k][l].Threaten();
+  //            } else {
+  //              squares_[k][l].Mark();
+  //            }
+  //          }
+  //        }
+  //      }
+  //      return true;
+  //    }
+  //  }
+  //}
   return false;
 }
 
@@ -66,7 +74,7 @@ void Chessboard::MoveSelectedPiece(const sf::Vector2f& position) {
 }
 
 void Chessboard::ResetSelectedPiece() {
-  selected_square_->SetPiecePosition(selected_square_->getPosition());
+  selected_square_->SetPiecePosition(selected_square_->GetWorldPosition());
 }
 
 bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const {
@@ -197,6 +205,43 @@ void Chessboard::UnmarkAll() {
   }
 }
 
+void Chessboard::AssignPiece(size_t file, size_t rank, Chessman* piece) {
+  PieceAt(file, rank) = piece;
+  piece->setPosition(SquareAt(file, rank)->GetWorldPosition());
+}
+
+Chessman* Chessboard::PieceAt(const sf::Vector2f& position) const {
+  for (const auto& square : squares_) {
+    if (square->Contains(position)) {
+      auto coordinates = GetCoordinatesOfPiece(square->Piece());
+      for (auto& x : squares_) {
+        if (x->Piece()) {
+          auto end_coordinates = GetCoordinatesOfPiece(x->Piece());
+          if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
+                          end_coordinates.second)) {
+            x->Mark();
+          }
+        }
+      }
+      return square->Piece();
+    }
+  }
+  return nullptr;
+}
+
+std::pair<size_t, size_t> Chessboard::GetCoordinatesOfPiece(const Chessman* piece) const {
+  Chessman* found = nullptr;
+  size_t i = 0;
+  for (; i < squares_.size(); i++) {
+    if (squares_.at(i)->Piece() == piece) {
+      found = squares_.at(i)->Piece();
+      break;
+    }
+  }
+  assert(found);
+  return std::pair<size_t, size_t>(i % kSideSquaresNo, kSideSquaresNo - 1 - (i / kSideSquaresNo));
+}
+
 Chessboard::Square::Square(float side) : marked_{false}, threatened_{false} {
   SetSize(side);
 }
@@ -226,8 +271,8 @@ Chessman*& Chessboard::Square::Piece() {
 }
 
 bool Chessboard::Square::Contains(const sf::Vector2f& position) const {
-  sf::FloatRect r{shape_.getPosition(), shape_.getSize()};
-  if (r.contains(static_cast<sf::Vector2f>(position))) {
+  sf::FloatRect r{GetWorldPosition(), shape_.getSize()};
+  if (r.contains(position)) {
     return true;
   } else {
     return false;
@@ -236,7 +281,7 @@ bool Chessboard::Square::Contains(const sf::Vector2f& position) const {
 
 void Chessboard::Square::SetPiecePosition(const sf::Vector2f& position) {
   if (piece_) {
-    piece_->setPosition(static_cast<sf::Vector2f>(position));
+    piece_->setPosition(position);
   }
 }
 
@@ -264,21 +309,21 @@ void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates 
   target.draw(shape_, states);
   /*if (piece_) {
     target.draw(*piece_);
-  }
+  }*/
   if (marked_) {
     float r = shape_.getSize().x / 2;
     sf::CircleShape c;
     c.setRadius(r / 2);
     c.setFillColor({37, 150, 190, 120});
     c.setOrigin({r / 2, r / 2});
-    c.setPosition(GetPosition() + sf::Vector2f{r, r});
-    target.draw(c);
+    c.setPosition(GetWorldPosition() + sf::Vector2f{r, r});
+    target.draw(c, states);
   }
   if (threatened_) {
     sf::RectangleShape t{shape_};
     t.setFillColor(sf::Color{255, 93, 82, 120});
-    target.draw(t);
-  }*/
+    target.draw(t, states);
+  }
 }
 
 void Chessboard::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {

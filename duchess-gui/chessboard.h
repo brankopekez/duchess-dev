@@ -24,6 +24,10 @@ class Chessboard : public SceneNode {
   bool Move(const sf::Vector2f& position);
   void UnmarkAll();
 
+  void AssignPiece(size_t file, size_t rank, Chessman* piece);
+  Chessman* PieceAt(const sf::Vector2f& position) const;
+  std::pair<size_t, size_t> GetCoordinatesOfPiece(const Chessman* piece) const;
+
  protected:
   class Square : public SceneNode {
    public:
