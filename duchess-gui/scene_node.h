@@ -6,6 +6,7 @@
 
 class SceneNode : public sf::Transformable, public sf::Drawable, private sf::NonCopyable {
  public:
+  SceneNode();
   void AttachChild(std::unique_ptr<SceneNode> child);
   std::unique_ptr<SceneNode> DetachChild(const SceneNode& node);
   sf::Vector2f GetWorldPosition() const;

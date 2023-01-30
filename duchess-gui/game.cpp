@@ -226,11 +226,17 @@ void Game::ProcessInput() {
         break;
       case sf::Event::MouseButtonPressed:
         if (event.mouseButton.button == sf::Mouse::Left) {
-          selected_piece_ =
+          auto piece_ptr =
               board_->PieceAt({(float)event.mouseButton.x, (float)event.mouseButton.y});
-          if (selected_piece_) {
+          if (piece_ptr != selected_piece_) {
+            if (selected_piece_) {
+              std::unique_ptr<SceneNode> p{scene_layers_[kAir]->DetachChild(*selected_piece_)};
+              scene_layers_[kPieces]->AttachChild(std::move(p));
+            }
+            selected_piece_ = piece_ptr;
             std::unique_ptr<SceneNode> p{scene_layers_[kPieces]->DetachChild(*selected_piece_)};
             scene_layers_[kAir]->AttachChild(std::move(p));
+            board_->PickUpPiece(selected_piece_);
           }
           press_ = selected_piece_ != nullptr;
           if (!press_) {
@@ -254,9 +260,12 @@ void Game::ProcessInput() {
           press_ = false;
           if (drag_) {
             if (!board_->Move({(float)event.mouseButton.x, (float)event.mouseButton.y})) {
-              //board_->ResetSelectedPiece();
+              board_->ResetSelectedSquare();
             } else {
               board_->UnmarkAll();
+              std::unique_ptr<SceneNode> p{scene_layers_[kAir]->DetachChild(*selected_piece_)};
+              scene_layers_[kPieces]->AttachChild(std::move(p));
+              selected_piece_ = nullptr;
             }
             drag_ = false;
           }

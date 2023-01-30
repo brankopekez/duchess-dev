@@ -14,12 +14,8 @@
 class Chessboard : public SceneNode {
  public:
   Chessboard(const float size);
-  void NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
-                const TextureWrapper& textures);
 
-  bool SelectPieceAt(const sf::Vector2f& position);
-  void MoveSelectedPiece(const sf::Vector2f& position);
-  void ResetSelectedPiece();
+  void ResetSelectedSquare();
   bool MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
   bool Move(const sf::Vector2f& position);
   void UnmarkAll();
@@ -27,11 +23,13 @@ class Chessboard : public SceneNode {
   void AssignPiece(size_t file, size_t rank, Chessman* piece);
   Chessman* PieceAt(const sf::Vector2f& position) const;
   std::pair<size_t, size_t> GetCoordinatesOfPiece(const Chessman* piece) const;
+  void PickUpPiece(const Chessman* piece);
 
  protected:
   class Square : public SceneNode {
    public:
     Square(float side);
+    const sf::Color& GetColor() const;
     void SetColor(const sf::Color& color);
     void SetTexture(const sf::Texture& texture, bool resetRect = false);
     void SetSize(float side);
@@ -65,6 +63,9 @@ class Chessboard : public SceneNode {
   Square*& SquareAt(size_t file, size_t rank);
   Chessman* const& PieceAt(size_t file, size_t rank) const;
   Chessman*& PieceAt(size_t file, size_t rank);
+
+  Square* SquareAt(const sf::Vector2f& position) const;
+  std::pair<size_t, size_t> GetCoordinatesOfSquare(const Square* square) const;
 
   bool IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
 

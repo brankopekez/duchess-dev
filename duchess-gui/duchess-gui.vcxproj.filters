@@ -36,6 +36,12 @@
     <ClCompile Include="scene_node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sprite_node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="circle_node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
@@ -54,6 +60,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scene_node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite_node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="circle_node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

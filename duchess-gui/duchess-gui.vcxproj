@@ -137,18 +137,22 @@
   <ItemGroup>
     <ClCompile Include="chessboard.cpp" />
     <ClCompile Include="chessman.cpp" />
+    <ClCompile Include="circle_node.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="scene_node.cpp" />
+    <ClCompile Include="sprite_node.cpp" />
     <ClCompile Include="texture_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chessboard.h" />
     <ClInclude Include="chessman.h" />
+    <ClInclude Include="circle_node.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="scene_node.h" />
+    <ClInclude Include="sprite_node.h" />
     <ClInclude Include="texture_wrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
