@@ -15,7 +15,7 @@ class Game {
   void Run();
 
  private:
-  enum Layer { kBoard, kPieces, kAir, kLayerCount };
+  enum Layer { kBoard, kLayerCount };
 
   static const sf::Time kTimePerFrame;
 
@@ -34,5 +34,5 @@ class Game {
 
   bool press_;
   bool drag_;
-  Chessman* selected_piece_;
+  bool pick_;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "entity.h"
 #include "scene_node.h"
+#include "texture_wrapper.h"
 
 class Chessman : public SceneNode {
  public:

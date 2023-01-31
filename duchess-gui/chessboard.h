@@ -8,22 +8,16 @@
 #include <SFML/Graphics.hpp>
 
 #include "chessman.h"
-#include "entity.h"
 #include "scene_node.h"
 
 class Chessboard : public SceneNode {
  public:
   Chessboard(const float size);
-
-  void ResetSelectedSquare();
+  void NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
+                const TextureWrapper& textures);
   bool MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
-  bool Move(const sf::Vector2f& position);
-  void UnmarkAll();
-
-  void AssignPiece(size_t file, size_t rank, Chessman* piece);
-  Chessman* PieceAt(const sf::Vector2f& position) const;
-  std::pair<size_t, size_t> GetCoordinatesOfPiece(const Chessman* piece) const;
-  void PickUpPiece(const Chessman* piece);
+  bool Pick(const sf::Vector2f& position);
+  void Unpick();
 
  protected:
   class Square : public SceneNode {
@@ -40,11 +34,9 @@ class Chessboard : public SceneNode {
 
     bool Contains(const sf::Vector2f& position) const;
     void SetPiecePosition(const sf::Vector2f& position);
-    Chessman* MovePiece();
-    void Mark();
-    void Unmark();
-    void Threaten();
-    void Unthreaten();
+
+    const bool& LegalMoveFlag() const;
+    bool& LegalMoveFlag();
 
    protected:
     virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -52,11 +44,10 @@ class Chessboard : public SceneNode {
    private:
     sf::RectangleShape shape_;
     Chessman* piece_;
-    bool marked_;
-    bool threatened_;
+    bool legal_move_flag_;
   };
 
-  virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
+  //virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
 
  private:
   Square* const& SquareAt(size_t file, size_t rank) const;
@@ -65,7 +56,10 @@ class Chessboard : public SceneNode {
   Chessman*& PieceAt(size_t file, size_t rank);
 
   Square* SquareAt(const sf::Vector2f& position) const;
+  Chessman* PieceAt(const sf::Vector2f& position) const;
+
   std::pair<size_t, size_t> GetCoordinatesOfSquare(const Square* square) const;
+  std::pair<size_t, size_t> GetCoordinatesOfPiece(const Chessman* piece) const;
 
   bool IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
 
@@ -74,6 +68,10 @@ class Chessboard : public SceneNode {
 
   float size_;
   std::array<Square*, kSquaresNo> squares_;
-  sf::RectangleShape board_shape_;
-  Square* selected_square_;
+
+  enum Layer { kSquares, kPieces, kAir, kLayerCount };
+  std::array<SceneNode*, Layer::kLayerCount> scene_layers_;
+  SceneNode scene_graph_;
+
+  Square* picked_square_;
 };
