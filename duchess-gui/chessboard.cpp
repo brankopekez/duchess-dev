@@ -136,21 +136,94 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
 }
 
 bool Chessboard::Pick(const sf::Vector2f& position) {
-  picked_square_ = SquareAt(position);
-  if (picked_square_ && picked_square_->Piece()) {
-    auto coordinates = GetCoordinatesOfSquare(picked_square_);
+  Square* new_pick = SquareAt(position);
 
-    // Find all legal moves
-    for (auto& square : squares_) {
-      auto end_coordinates = GetCoordinatesOfSquare(square);
-      if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
-                      end_coordinates.second)) {
-        square->LegalMoveFlag() = true;
+  if (new_pick) {
+    if (picked_square_) {
+      if (new_pick == picked_square_) {
+        Unpick();
+      } else {
+        if (new_pick->Piece() &&
+            new_pick->Piece()->IsWhite() == picked_square_->Piece()->IsWhite()) {
+          Unpick();
+          picked_square_ = new_pick;
+          auto coordinates = GetCoordinatesOfSquare(picked_square_);
+
+          // Find all legal moves
+          for (auto& square : squares_) {
+            auto end_coordinates = GetCoordinatesOfSquare(square);
+            if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
+                            end_coordinates.second)) {
+              square->LegalMoveFlag() = true;
+            }
+          }
+        } else if (new_pick->LegalMoveFlag() == true) {
+          if (new_pick->Piece()) {
+            new_pick->DetachChild(*new_pick->Piece());
+          }
+          new_pick->Piece() = picked_square_->Piece();
+          new_pick->AttachChild(std::move(picked_square_->DetachChild(*picked_square_->Piece())));
+          picked_square_->Piece() = nullptr;
+          Unpick();
+        } else {
+          Unpick();
+        }
+      }
+    } else if (new_pick->Piece()) {
+      picked_square_ = new_pick;
+      auto coordinates = GetCoordinatesOfSquare(picked_square_);
+
+      // Find all legal moves
+      for (auto& square : squares_) {
+        auto end_coordinates = GetCoordinatesOfSquare(square);
+        if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
+                        end_coordinates.second)) {
+          square->LegalMoveFlag() = true;
+        }
       }
     }
-
-    return true;
+  } else {
+    Unpick();
   }
+
+  //if (!picked_square_ && new_pick && new_pick->Piece()) {
+  //  picked_square_ = new_pick;
+  //  auto coordinates = GetCoordinatesOfSquare(picked_square_);
+
+  //  // Find all legal moves
+  //  for (auto& square : squares_) {
+  //    auto end_coordinates = GetCoordinatesOfSquare(square);
+  //    if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
+  //                    end_coordinates.second)) {
+  //      square->LegalMoveFlag() = true;
+  //    }
+  //  }
+  //  return true;
+  //}
+
+  //if (picked_square_) {
+  //  if (new_pick) {
+  //    auto coordinates = GetCoordinatesOfSquare(picked_square_);
+  //    auto end_coordinates = GetCoordinatesOfSquare(new_pick);
+  //    if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
+  //                    end_coordinates.second)) {
+  //      if (new_pick->Piece()) {
+  //        new_pick->DetachChild(*new_pick->Piece());
+  //      }
+  //      new_pick->Piece() = picked_square_->Piece();
+  //      new_pick->AttachChild(std::move(picked_square_->DetachChild(*picked_square_->Piece())));
+  //      picked_square_->Piece() = nullptr;
+  //      Unpick();
+  //    } else {
+  //      Unpick();
+  //    }
+  //    return true;
+  //  } else {
+  //    Unpick();
+  //  }
+  //  return false;
+  //}
+
   return false;
 }
 
@@ -223,8 +296,9 @@ void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates 
   target.draw(shape_, states);
   if (legal_move_flag_) {
     float r = GetSize() / 8;
-    sf::CircleShape circle_mark{r};
-    circle_mark.setFillColor(sf::Color(255, 255, 255, 90));
+    const size_t point_count = 90;
+    sf::CircleShape circle_mark{r, point_count};
+    circle_mark.setFillColor(sf::Color(90, 90, 90, 90));
     circle_mark.setOrigin({r, r});
     circle_mark.move({GetSize() / 2, GetSize() / 2});
     target.draw(circle_mark, states);

@@ -4,13 +4,15 @@
 
 const sf::Time Game::kTimePerFrame = sf::seconds(1.f / 60.f);
 
-Game::Game()
-    : window_{sf::VideoMode(900, 900), "Duchess-GUI", sf::Style::Close},
-      board_{nullptr},
-      press_{false},
-      drag_{false},
-      pick_{false} {
+Game::Game() : window_{}, board_{nullptr}, press_{false}, drag_{false}, pick_{false} {
+  // Enable anti-aliasing
+  sf::ContextSettings settings;
+  settings.antialiasingLevel = 8;
+
+  // Create window and enable vertical sync
+  window_.create(sf::VideoMode(900, 900), "Duchess-GUI", sf::Style::Close, settings);
   window_.setVerticalSyncEnabled(true);
+
   LoadTextures();
   BuildScene();
 }
@@ -95,21 +97,21 @@ void Game::ProcessInput() {
         break;
       case sf::Event::MouseButtonPressed:
         if (event.mouseButton.button == sf::Mouse::Left) {
-          press_ = board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
-          std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
+          pick_ = board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
+          //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
         }
         break;
       case sf::Event::MouseMoved:
         if (press_) {
           drag_ = true;
           //board_->MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
-          std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
+          //std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
         }
         break;
       case sf::Event::MouseButtonReleased:
         if (event.mouseButton.button == sf::Mouse::Left) {
-          press_ = false;
-          board_->Unpick();
+          //press_ = false;
+          //board_->Unpick();
         }
         break;
     }
