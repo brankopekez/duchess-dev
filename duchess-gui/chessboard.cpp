@@ -154,10 +154,15 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
             auto end_coordinates = GetCoordinatesOfSquare(square);
             if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
                             end_coordinates.second)) {
-              square->LegalMoveFlag() = true;
+              if (square->Piece() &&
+                  square->Piece()->IsWhite() != picked_square_->Piece()->IsWhite()) {
+                square->AttackFlag() = true;
+              } else {
+                square->LegalMoveFlag() = true;
+              }
             }
           }
-        } else if (new_pick->LegalMoveFlag() == true) {
+        } else if (new_pick->LegalMoveFlag() || new_pick->AttackFlag()) {
           if (new_pick->Piece()) {
             new_pick->DetachChild(*new_pick->Piece());
           }
@@ -178,7 +183,11 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
         auto end_coordinates = GetCoordinatesOfSquare(square);
         if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
                         end_coordinates.second)) {
-          square->LegalMoveFlag() = true;
+          if (square->Piece() && square->Piece()->IsWhite() != picked_square_->Piece()->IsWhite()) {
+            square->AttackFlag() = true;
+          } else {
+            square->LegalMoveFlag() = true;
+          }
         }
       }
     }
@@ -229,9 +238,11 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
 
 void Chessboard::Unpick() {
   picked_square_ = nullptr;
-  // Remove legal move flags
+
+  // Remove flags
   for (auto& square : squares_) {
     square->LegalMoveFlag() = false;
+    square->AttackFlag() = false;
   }
 }
 
@@ -292,16 +303,28 @@ bool& Chessboard::Square::LegalMoveFlag() {
   return legal_move_flag_;
 }
 
+const bool& Chessboard::Square::AttackFlag() const {
+  return attack_flag_;
+}
+
+bool& Chessboard::Square::AttackFlag() {
+  return attack_flag_;
+}
+
 void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
   target.draw(shape_, states);
   if (legal_move_flag_) {
     float r = GetSize() / 8;
     const size_t point_count = 90;
     sf::CircleShape circle_mark{r, point_count};
-    circle_mark.setFillColor(sf::Color(90, 90, 90, 90));
+    circle_mark.setFillColor(sf::Color(15, 15, 15, 30));
     circle_mark.setOrigin({r, r});
     circle_mark.move({GetSize() / 2, GetSize() / 2});
     target.draw(circle_mark, states);
+  } else if (attack_flag_) {
+    sf::RectangleShape square_mark{shape_};
+    square_mark.setFillColor(sf::Color(255, 153, 153, 120));
+    target.draw(square_mark, states);
   }
 }
 
