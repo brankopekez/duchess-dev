@@ -169,6 +169,12 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
           new_pick->Piece() = picked_square_->Piece();
           new_pick->AttachChild(std::move(picked_square_->DetachChild(*picked_square_->Piece())));
           picked_square_->Piece() = nullptr;
+
+          for (auto& square : squares_) {
+            square->MoveFlag() = false;
+          }
+          new_pick->MoveFlag() = true;
+          picked_square_->MoveFlag() = true;
           Unpick();
         } else {
           Unpick();
@@ -311,8 +317,21 @@ bool& Chessboard::Square::AttackFlag() {
   return attack_flag_;
 }
 
+const bool& Chessboard::Square::MoveFlag() const {
+  return move_flag_;
+}
+
+bool& Chessboard::Square::MoveFlag() {
+  return move_flag_;
+}
+
 void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
   target.draw(shape_, states);
+  if (move_flag_) {
+    sf::RectangleShape square_mark{shape_};
+    square_mark.setFillColor(sf::Color(153, 255, 102, 120));
+    target.draw(square_mark, states);
+  }
   if (legal_move_flag_) {
     float r = GetSize() / 8;
     const size_t point_count = 90;
@@ -322,9 +341,19 @@ void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates 
     circle_mark.move({GetSize() / 2, GetSize() / 2});
     target.draw(circle_mark, states);
   } else if (attack_flag_) {
-    sf::RectangleShape square_mark{shape_};
-    square_mark.setFillColor(sf::Color(255, 153, 153, 120));
-    target.draw(square_mark, states);
+    float r = GetSize() / 2.5;
+    const size_t point_count = 90;
+    sf::CircleShape circle_mark{r, point_count};
+    circle_mark.setFillColor(sf::Color::Transparent);
+    circle_mark.setOutlineThickness(r / 5);
+    circle_mark.setOutlineColor(sf::Color(15, 15, 15, 30));
+    circle_mark.setOrigin({r, r});
+    circle_mark.move({GetSize() / 2, GetSize() / 2});
+    target.draw(circle_mark, states);
+
+    //sf::RectangleShape square_mark{shape_};
+    //square_mark.setFillColor(sf::Color(255, 153, 153, 120));
+    //target.draw(square_mark, states);
   }
 }
 

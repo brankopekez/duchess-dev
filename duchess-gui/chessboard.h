@@ -41,6 +41,9 @@ class Chessboard : public SceneNode {
     const bool& AttackFlag() const;
     bool& AttackFlag();
 
+    const bool& MoveFlag() const;
+    bool& MoveFlag();
+
    protected:
     virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
 
@@ -49,6 +52,7 @@ class Chessboard : public SceneNode {
     Chessman* piece_;
     bool legal_move_flag_;
     bool attack_flag_;
+    bool move_flag_;
   };
 
   //virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
