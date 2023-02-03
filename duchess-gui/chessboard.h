@@ -18,6 +18,7 @@ class Chessboard : public SceneNode {
   bool MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
   bool Pick(const sf::Vector2f& position);
   void Unpick();
+  void Drag(const sf::Vector2f& position);
 
  protected:
   class Square : public SceneNode {
@@ -82,4 +83,5 @@ class Chessboard : public SceneNode {
   SceneNode scene_graph_;
 
   Square* picked_square_;
+  Chessman* dragged_piece_;
 };

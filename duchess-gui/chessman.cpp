@@ -47,6 +47,9 @@ Chessman::Chessman(Color color, Type type, const TextureWrapper& textures)
   sprite_.setTextureRect(sf::IntRect{{column * d, row * d}, {d, d}});
 }
 
+Chessman::Chessman(const Chessman& other)
+    : color_{other.color_}, type_{other.type_}, sprite_{other.sprite_} {}
+
 void Chessman::SetTexture(const sf::Texture& texture, bool resetRect) {
   sprite_.setTexture(texture, resetRect);
 }

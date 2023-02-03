@@ -138,10 +138,16 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
 bool Chessboard::Pick(const sf::Vector2f& position) {
   Square* new_pick = SquareAt(position);
 
+  if (dragged_piece_) {
+    scene_layers_[kAir]->DetachChild(*dragged_piece_);
+    dragged_piece_ = nullptr;
+  }
+
   if (new_pick) {
     if (picked_square_) {
       if (new_pick == picked_square_) {
         Unpick();
+        return false;
       } else {
         if (new_pick->Piece() &&
             new_pick->Piece()->IsWhite() == picked_square_->Piece()->IsWhite()) {
@@ -162,6 +168,7 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
               }
             }
           }
+          return true;
         } else if (new_pick->LegalMoveFlag() || new_pick->AttackFlag()) {
           if (new_pick->Piece()) {
             new_pick->DetachChild(*new_pick->Piece());
@@ -175,9 +182,12 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
           }
           new_pick->MoveFlag() = true;
           picked_square_->MoveFlag() = true;
+
           Unpick();
+          return false;
         } else {
           Unpick();
+          return false;
         }
       }
     } else if (new_pick->Piece()) {
@@ -196,9 +206,11 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
           }
         }
       }
+      return true;
     }
   } else {
     Unpick();
+    return false;
   }
 
   //if (!picked_square_ && new_pick && new_pick->Piece()) {
@@ -238,8 +250,6 @@ bool Chessboard::Pick(const sf::Vector2f& position) {
   //  }
   //  return false;
   //}
-
-  return false;
 }
 
 void Chessboard::Unpick() {
@@ -249,6 +259,22 @@ void Chessboard::Unpick() {
   for (auto& square : squares_) {
     square->LegalMoveFlag() = false;
     square->AttackFlag() = false;
+  }
+}
+
+void Chessboard::Drag(const sf::Vector2f& position) {
+  if (picked_square_) {
+    if (!dragged_piece_) {
+      std::unique_ptr<Chessman> new_piece{new Chessman(*picked_square_->Piece())};
+      new_piece->setPosition(position - GetWorldPosition() -
+                             sf::Vector2f{new_piece->GetSize() / 2, new_piece->GetSize() / 2});
+      dragged_piece_ = new_piece.get();
+      scene_layers_[kAir]->AttachChild(std::move(new_piece));
+    } else {
+      dragged_piece_->setPosition(
+          position - GetWorldPosition() -
+          sf::Vector2f{dragged_piece_->GetSize() / 2, dragged_piece_->GetSize() / 2});
+    }
   }
 }
 
@@ -341,7 +367,7 @@ void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates 
     circle_mark.move({GetSize() / 2, GetSize() / 2});
     target.draw(circle_mark, states);
   } else if (attack_flag_) {
-    float r = GetSize() / 2.5;
+    float r = GetSize() / 2.5f;
     const size_t point_count = 90;
     sf::CircleShape circle_mark{r, point_count};
     circle_mark.setFillColor(sf::Color::Transparent);

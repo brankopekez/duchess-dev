@@ -9,6 +9,7 @@ class Chessman : public SceneNode {
   enum Type { kKing, kQueen, kBishop, kKnight, kRook, kPawn, kTypeCount };
 
   Chessman(Color color, Type type, const TextureWrapper& textures);
+  Chessman(const Chessman& other);
   void SetTexture(const sf::Texture& texture, bool resetRect = false);
   float GetSize() const;
   void SetSize(float size);

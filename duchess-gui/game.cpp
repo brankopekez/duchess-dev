@@ -102,8 +102,9 @@ void Game::ProcessInput() {
         }
         break;
       case sf::Event::MouseMoved:
-        if (press_) {
+        if (pick_ && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
           drag_ = true;
+          board_->Drag({(float)event.mouseMove.x, (float)event.mouseMove.y});
           //board_->MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
           //std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
         }
@@ -112,6 +113,10 @@ void Game::ProcessInput() {
         if (event.mouseButton.button == sf::Mouse::Left) {
           //press_ = false;
           //board_->Unpick();
+          if (drag_) {
+            pick_ = board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
+            drag_ = false;
+          }
         }
         break;
     }
