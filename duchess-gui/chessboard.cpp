@@ -135,121 +135,33 @@ bool Chessboard::MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t e
   return true;
 }
 
-bool Chessboard::Pick(const sf::Vector2f& position) {
+bool Chessboard::IsPiecePicked() const {
+  return picked_square_ != nullptr;
+}
+
+void Chessboard::Pick(const sf::Vector2f& position) {
   Square* new_pick = SquareAt(position);
 
-  if (dragged_piece_) {
+  if (new_pick && !picked_square_ && new_pick->Piece()) {
+    picked_square_ = new_pick;
+    MarkSquares();
+  } else if (new_pick && picked_square_ && new_pick == picked_square_) {
+    Unpick();
+  } else if (new_pick && picked_square_ && new_pick != picked_square_) {
+    if (new_pick->Piece() && new_pick->Piece()->IsWhite() == picked_square_->Piece()->IsWhite()) {
+      Unpick();
+      picked_square_ = new_pick;
+      MarkSquares();
+    } else if (new_pick->LegalMoveFlag() || new_pick->AttackFlag()) {
+      Move(position);
+      Unpick();
+    } 
+  } else if (dragged_piece_) {
     scene_layers_[kAir]->DetachChild(*dragged_piece_);
     dragged_piece_ = nullptr;
-  }
-
-  if (new_pick) {
-    if (picked_square_) {
-      if (new_pick == picked_square_) {
-        Unpick();
-        return false;
-      } else {
-        if (new_pick->Piece() &&
-            new_pick->Piece()->IsWhite() == picked_square_->Piece()->IsWhite()) {
-          Unpick();
-          picked_square_ = new_pick;
-          auto coordinates = GetCoordinatesOfSquare(picked_square_);
-
-          // Find all legal moves
-          for (auto& square : squares_) {
-            auto end_coordinates = GetCoordinatesOfSquare(square);
-            if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
-                            end_coordinates.second)) {
-              if (square->Piece() &&
-                  square->Piece()->IsWhite() != picked_square_->Piece()->IsWhite()) {
-                square->AttackFlag() = true;
-              } else {
-                square->LegalMoveFlag() = true;
-              }
-            }
-          }
-          return true;
-        } else if (new_pick->LegalMoveFlag() || new_pick->AttackFlag()) {
-          if (new_pick->Piece()) {
-            new_pick->DetachChild(*new_pick->Piece());
-          }
-          new_pick->Piece() = picked_square_->Piece();
-          new_pick->AttachChild(std::move(picked_square_->DetachChild(*picked_square_->Piece())));
-          picked_square_->Piece() = nullptr;
-
-          for (auto& square : squares_) {
-            square->MoveFlag() = false;
-          }
-          new_pick->MoveFlag() = true;
-          picked_square_->MoveFlag() = true;
-
-          Unpick();
-          return false;
-        } else {
-          Unpick();
-          return false;
-        }
-      }
-    } else if (new_pick->Piece()) {
-      picked_square_ = new_pick;
-      auto coordinates = GetCoordinatesOfSquare(picked_square_);
-
-      // Find all legal moves
-      for (auto& square : squares_) {
-        auto end_coordinates = GetCoordinatesOfSquare(square);
-        if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
-                        end_coordinates.second)) {
-          if (square->Piece() && square->Piece()->IsWhite() != picked_square_->Piece()->IsWhite()) {
-            square->AttackFlag() = true;
-          } else {
-            square->LegalMoveFlag() = true;
-          }
-        }
-      }
-      return true;
-    }
   } else {
     Unpick();
-    return false;
   }
-
-  //if (!picked_square_ && new_pick && new_pick->Piece()) {
-  //  picked_square_ = new_pick;
-  //  auto coordinates = GetCoordinatesOfSquare(picked_square_);
-
-  //  // Find all legal moves
-  //  for (auto& square : squares_) {
-  //    auto end_coordinates = GetCoordinatesOfSquare(square);
-  //    if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
-  //                    end_coordinates.second)) {
-  //      square->LegalMoveFlag() = true;
-  //    }
-  //  }
-  //  return true;
-  //}
-
-  //if (picked_square_) {
-  //  if (new_pick) {
-  //    auto coordinates = GetCoordinatesOfSquare(picked_square_);
-  //    auto end_coordinates = GetCoordinatesOfSquare(new_pick);
-  //    if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
-  //                    end_coordinates.second)) {
-  //      if (new_pick->Piece()) {
-  //        new_pick->DetachChild(*new_pick->Piece());
-  //      }
-  //      new_pick->Piece() = picked_square_->Piece();
-  //      new_pick->AttachChild(std::move(picked_square_->DetachChild(*picked_square_->Piece())));
-  //      picked_square_->Piece() = nullptr;
-  //      Unpick();
-  //    } else {
-  //      Unpick();
-  //    }
-  //    return true;
-  //  } else {
-  //    Unpick();
-  //  }
-  //  return false;
-  //}
 }
 
 void Chessboard::Unpick() {
@@ -276,6 +188,26 @@ void Chessboard::Drag(const sf::Vector2f& position) {
           sf::Vector2f{dragged_piece_->GetSize() / 2, dragged_piece_->GetSize() / 2});
     }
   }
+}
+
+void Chessboard::Move(const sf::Vector2f& position) {
+  Square* new_pick = SquareAt(position);
+  if (!new_pick) {
+    return;
+  }
+
+  if (new_pick->Piece()) {
+    new_pick->DetachChild(*new_pick->Piece());
+  }
+  new_pick->Piece() = picked_square_->Piece();
+  new_pick->AttachChild(std::move(picked_square_->DetachChild(*picked_square_->Piece())));
+  picked_square_->Piece() = nullptr;
+
+  for (auto& square : squares_) {
+    square->MoveFlag() = false;
+  }
+  new_pick->MoveFlag() = true;
+  picked_square_->MoveFlag() = true;
 }
 
 //--- Square class --- //
@@ -486,4 +418,19 @@ bool Chessboard::IsPathClear(size_t file, size_t rank, size_t end_file, size_t e
     }
   }
   return true;
+}
+
+void Chessboard::MarkSquares() {
+  auto coordinates = GetCoordinatesOfSquare(picked_square_);
+  for (auto& square : squares_) {
+    auto end_coordinates = GetCoordinatesOfSquare(square);
+    if (MoveIsLegal(coordinates.first, coordinates.second, end_coordinates.first,
+                    end_coordinates.second)) {
+      if (square->Piece() && square->Piece()->IsWhite() != picked_square_->Piece()->IsWhite()) {
+        square->AttackFlag() = true;
+      } else {
+        square->LegalMoveFlag() = true;
+      }
+    }
+  }
 }

@@ -16,9 +16,11 @@ class Chessboard : public SceneNode {
   void NewPiece(Chessman::Color color, Chessman::Type type, size_t file, size_t rank,
                 const TextureWrapper& textures);
   bool MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
-  bool Pick(const sf::Vector2f& position);
+  bool IsPiecePicked() const;
+  void Pick(const sf::Vector2f& position);
   void Unpick();
   void Drag(const sf::Vector2f& position);
+  void Move(const sf::Vector2f& position);
 
  protected:
   class Square : public SceneNode {
@@ -71,6 +73,8 @@ class Chessboard : public SceneNode {
   std::pair<size_t, size_t> GetCoordinatesOfPiece(const Chessman* piece) const;
 
   bool IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
+
+  void MarkSquares();
 
   static const int kSquaresNo = 64;
   static const int kSideSquaresNo = 8;

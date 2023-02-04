@@ -97,14 +97,14 @@ void Game::ProcessInput() {
         break;
       case sf::Event::MouseButtonPressed:
         if (event.mouseButton.button == sf::Mouse::Left) {
-          pick_ = board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
+          board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
           //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
         }
         break;
       case sf::Event::MouseMoved:
-        if (pick_ && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        if (board_->IsPiecePicked() && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
           drag_ = true;
-          board_->Drag({(float)event.mouseMove.x, (float)event.mouseMove.y});
+          //board_->Drag({(float)event.mouseMove.x, (float)event.mouseMove.y});
           //board_->MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
           //std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
         }
@@ -114,7 +114,7 @@ void Game::ProcessInput() {
           //press_ = false;
           //board_->Unpick();
           if (drag_) {
-            pick_ = board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
+            //board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
             drag_ = false;
           }
         }
