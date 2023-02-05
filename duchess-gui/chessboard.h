@@ -21,6 +21,7 @@ class Chessboard : public SceneNode {
   void Unpick();
   void Drag(const sf::Vector2f& position);
   void Move(const sf::Vector2f& position);
+  void Release(const sf::Vector2f& position);
 
  protected:
   class Square : public SceneNode {

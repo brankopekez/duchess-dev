@@ -146,7 +146,7 @@ void Chessboard::Pick(const sf::Vector2f& position) {
     picked_square_ = new_pick;
     MarkSquares();
   } else if (new_pick && picked_square_ && new_pick == picked_square_) {
-    Unpick();
+    //Unpick();
   } else if (new_pick && picked_square_ && new_pick != picked_square_) {
     if (new_pick->Piece() && new_pick->Piece()->IsWhite() == picked_square_->Piece()->IsWhite()) {
       Unpick();
@@ -155,10 +155,9 @@ void Chessboard::Pick(const sf::Vector2f& position) {
     } else if (new_pick->LegalMoveFlag() || new_pick->AttackFlag()) {
       Move(position);
       Unpick();
-    } 
-  } else if (dragged_piece_) {
-    scene_layers_[kAir]->DetachChild(*dragged_piece_);
-    dragged_piece_ = nullptr;
+    } else {
+      Unpick();
+    }
   } else {
     Unpick();
   }
@@ -208,6 +207,24 @@ void Chessboard::Move(const sf::Vector2f& position) {
   }
   new_pick->MoveFlag() = true;
   picked_square_->MoveFlag() = true;
+}
+
+void Chessboard::Release(const sf::Vector2f& position) {
+  Square* new_pick = SquareAt(position);
+
+  if (new_pick && picked_square_ && new_pick == picked_square_) {
+    //Unpick();
+  } else if (new_pick && picked_square_ && new_pick != picked_square_) {
+    if (new_pick->LegalMoveFlag() || new_pick->AttackFlag()) {
+      Move(position);
+      Unpick();
+    }
+  }
+
+  if (dragged_piece_) {
+    scene_layers_[kAir]->DetachChild(*dragged_piece_);
+    dragged_piece_ = nullptr;
+  }
 }
 
 //--- Square class --- //
