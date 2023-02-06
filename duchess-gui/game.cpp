@@ -99,6 +99,8 @@ void Game::ProcessInput() {
         if (event.mouseButton.button == sf::Mouse::Left) {
           board_->Pick({(float)event.mouseButton.x, (float)event.mouseButton.y});
           //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
+        } else if (event.mouseButton.button == sf::Mouse::Right) {
+          board_->PickCancel();
         }
         break;
       case sf::Event::MouseMoved:

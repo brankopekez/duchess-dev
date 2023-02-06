@@ -18,10 +18,9 @@ class Chessboard : public SceneNode {
   bool MoveIsLegal(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
   bool IsPiecePicked() const;
   void Pick(const sf::Vector2f& position);
-  void Unpick();
   void Drag(const sf::Vector2f& position);
-  void Move(const sf::Vector2f& position);
   void Release(const sf::Vector2f& position);
+  void PickCancel();
 
  protected:
   class Square : public SceneNode {
@@ -76,6 +75,9 @@ class Chessboard : public SceneNode {
   bool IsPathClear(size_t file, size_t rank, size_t end_file, size_t end_rank) const;
 
   void MarkSquares();
+  void Move(const sf::Vector2f& position);
+  void Unpick();
+  void Undrag();
 
   static const int kSquaresNo = 64;
   static const int kSideSquaresNo = 8;
