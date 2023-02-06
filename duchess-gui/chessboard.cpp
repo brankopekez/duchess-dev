@@ -165,6 +165,7 @@ void Chessboard::Pick(const sf::Vector2f& position) {
   }
 
   if (picked_square_) {
+    picked_square_->PickFlag() = true;
     Drag(position);
   }
 }
@@ -285,9 +286,17 @@ bool& Chessboard::Square::MoveFlag() {
   return move_flag_;
 }
 
+const bool& Chessboard::Square::PickFlag() const {
+  return pick_flag_;
+}
+
+bool& Chessboard::Square::PickFlag() {
+  return pick_flag_;
+}
+
 void Chessboard::Square::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const {
   target.draw(shape_, states);
-  if (move_flag_) {
+  if (move_flag_ || pick_flag_) {
     sf::RectangleShape square_mark{shape_};
     square_mark.setFillColor(sf::Color(153, 255, 102, 120));
     target.draw(square_mark, states);
@@ -458,6 +467,9 @@ void Chessboard::Move(const sf::Vector2f& position) {
 }
 
 void Chessboard::Unpick() {
+  if (picked_square_) {
+    picked_square_->PickFlag() = false;
+  }
   picked_square_ = nullptr;
 
   // Remove flags
