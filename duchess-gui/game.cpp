@@ -103,20 +103,13 @@ void Game::ProcessInput() {
         break;
       case sf::Event::MouseMoved:
         if (board_->IsPiecePicked() && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-          drag_ = true;
           board_->Drag({(float)event.mouseMove.x, (float)event.mouseMove.y});
-          //board_->MoveSelectedPiece({(float)event.mouseMove.x, (float)event.mouseMove.y});
           //std::cout << event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
         }
         break;
       case sf::Event::MouseButtonReleased:
         if (event.mouseButton.button == sf::Mouse::Left) {
-          //press_ = false;
-          //board_->Unpick();
-          if (drag_) {
-            board_->Release({(float)event.mouseButton.x, (float)event.mouseButton.y});
-            drag_ = false;
-          }
+          board_->Release({(float)event.mouseButton.x, (float)event.mouseButton.y});
         }
         break;
     }

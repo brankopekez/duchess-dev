@@ -140,6 +140,11 @@ bool Chessboard::IsPiecePicked() const {
 }
 
 void Chessboard::Pick(const sf::Vector2f& position) {
+  if (dragged_piece_) {
+    scene_layers_[kAir]->DetachChild(*dragged_piece_);
+    dragged_piece_ = nullptr;
+  }
+
   Square* new_pick = SquareAt(position);
 
   if (new_pick && !picked_square_ && new_pick->Piece()) {
@@ -160,6 +165,10 @@ void Chessboard::Pick(const sf::Vector2f& position) {
     }
   } else {
     Unpick();
+  }
+
+  if (picked_square_) {
+    Drag(position);
   }
 }
 
@@ -210,6 +219,11 @@ void Chessboard::Move(const sf::Vector2f& position) {
 }
 
 void Chessboard::Release(const sf::Vector2f& position) {
+  if (dragged_piece_) {
+    scene_layers_[kAir]->DetachChild(*dragged_piece_);
+    dragged_piece_ = nullptr;
+  }
+
   Square* new_pick = SquareAt(position);
 
   if (new_pick && picked_square_ && new_pick == picked_square_) {
@@ -221,10 +235,6 @@ void Chessboard::Release(const sf::Vector2f& position) {
     }
   }
 
-  if (dragged_piece_) {
-    scene_layers_[kAir]->DetachChild(*dragged_piece_);
-    dragged_piece_ = nullptr;
-  }
 }
 
 //--- Square class --- //
