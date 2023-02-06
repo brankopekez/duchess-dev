@@ -141,7 +141,11 @@ bool Chessboard::IsPiecePicked() const {
 
 void Chessboard::Pick(const sf::Vector2f& position) {
   if (dragged_piece_) {
-    scene_layers_[kAir]->DetachChild(*dragged_piece_);
+    picked_square_->AttachChild(
+        std::move(scene_layers_[kAir]->DetachChild(*picked_square_->Piece())));
+    dragged_piece_->setPosition({0, 0});
+
+    //scene_layers_[kAir]->DetachChild(*dragged_piece_);
     dragged_piece_ = nullptr;
   }
 
@@ -183,13 +187,20 @@ void Chessboard::Unpick() {
 }
 
 void Chessboard::Drag(const sf::Vector2f& position) {
-  if (picked_square_) {
+  if (picked_square_ && picked_square_->Piece()) {
     if (!dragged_piece_) {
-      std::unique_ptr<Chessman> new_piece{new Chessman(*picked_square_->Piece())};
-      new_piece->setPosition(position - GetWorldPosition() -
-                             sf::Vector2f{new_piece->GetSize() / 2, new_piece->GetSize() / 2});
-      dragged_piece_ = new_piece.get();
-      scene_layers_[kAir]->AttachChild(std::move(new_piece));
+      scene_layers_[kAir]->AttachChild(
+          std::move(picked_square_->DetachChild(*picked_square_->Piece())));
+      picked_square_->Piece()->setPosition(position - GetWorldPosition() -
+                                           sf::Vector2f{picked_square_->Piece()->GetSize() / 2,
+                                                        picked_square_->Piece()->GetSize() / 2});
+      dragged_piece_ = picked_square_->Piece();
+
+      //std::unique_ptr<Chessman> new_piece{new Chessman(*picked_square_->Piece())};
+      //new_piece->setPosition(position - GetWorldPosition() -
+      //                       sf::Vector2f{new_piece->GetSize() / 2, new_piece->GetSize() / 2});
+      //dragged_piece_ = new_piece.get();
+      //scene_layers_[kAir]->AttachChild(std::move(new_piece));
     } else {
       dragged_piece_->setPosition(
           position - GetWorldPosition() -
@@ -220,7 +231,11 @@ void Chessboard::Move(const sf::Vector2f& position) {
 
 void Chessboard::Release(const sf::Vector2f& position) {
   if (dragged_piece_) {
-    scene_layers_[kAir]->DetachChild(*dragged_piece_);
+    picked_square_->AttachChild(
+        std::move(scene_layers_[kAir]->DetachChild(*picked_square_->Piece())));
+    dragged_piece_->setPosition({0, 0});
+
+    //scene_layers_[kAir]->DetachChild(*dragged_piece_);
     dragged_piece_ = nullptr;
   }
 
@@ -234,7 +249,6 @@ void Chessboard::Release(const sf::Vector2f& position) {
       Unpick();
     }
   }
-
 }
 
 //--- Square class --- //
