@@ -138,6 +138,7 @@
     <ClCompile Include="chessboard.cpp" />
     <ClCompile Include="chessman.cpp" />
     <ClCompile Include="circle_node.cpp" />
+    <ClCompile Include="command.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="scene_node.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="chessboard.h" />
     <ClInclude Include="chessman.h" />
     <ClInclude Include="circle_node.h" />
+    <ClInclude Include="command.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="scene_node.h" />
     <ClInclude Include="sprite_node.h" />
