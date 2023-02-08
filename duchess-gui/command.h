@@ -20,9 +20,9 @@ class MoveCommand : public UndoableCommand {
 
 class CommandManger {
  public:
-  void ExecuteCommand(Command& cmd);
+  void ExecuteCommand(Command* cmd);
   void Undo();
 
  private:
-  std::stack<Command> command_stack_;
+  std::stack<Command*> command_stack_;
 };
